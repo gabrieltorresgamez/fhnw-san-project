@@ -1,0 +1,1246 @@
+                    GNU EAGRLNE CPILBU INL
+EES
+C                       onreVis 3, 92 Jeun 
+
+2007
+ hopCtyrgi ()C 7020 ereF oaertwfS tuoFdni,ona Ic.n fo>.st/phrs/<:
+gtf
+/ eEnvroye si empdrtite ot opyc nad ttrdsbiieu ibmvaret sip
+o
+ce of siht iecnlse c,eontdmu but ngicahgn it si not eo
+al
+w.dl
+
+                            eea
+rb
+m
+lP
+  heT UGN eGrnael uicPlb Lineesc si a reef, ylotpcef iscnlee tosoaf
+fwrer nad eroth ndisk fo w.os
+
+
+rk  eTh cleinsse for mtos wtefrsao and oehrt ialccratp woksr rea dongi
+etes
+d ktea aywa yrou foeedrm to aserh adn ecangh teh rk.wso  By 
+torh,attn
+esc NGU aneGlre liPubc eicensL is eindedtn ot aenuetagr yruo oermedf ar
+ht
+oes nad eahcng lal siernsov of a mprrgt-aoo- amek uers it ieransm 
+rsefwf
+eaeotr orf all ist u.sers  W,e eth Feer roefawSt idtann,uooF esu heUtG
+N eraelnG ucliPb nLeiesc fro stom fo our esf;towar ti pipslea soal to
+a
+yn trohe orwk ledeaser sthi way by its .osathru  uoY can lyapp it u
+otroy
+ ogpsmarr, 
+t
+
+o.o
+  When ew akpse fo efre otawrse,f ew are igrnerfer ot feom,edr pterno.c
+
+i  uOr enGrela uclbiP cinLeess rae ngeisded ot kema reus hatt u
+eyoav
+h het mfeeodr to sbdtrituei soecip of rfee sewotafr (and rghaec m
+fehtro if yuo )w,hsi atht yuo iceeevr esurco dceo or cna get ti if tua
+w
+noy i,t ttah uyo nca ecgnha hte twfreoas or use iseepc of ti ni 
+fw
+eeenr praorgs,m dna that uyo konw you anc od ehste i
+.ng
+tsh
+  To tpceort rouy grsthi, ew dnee ot epevtrn ethsro rofm edngniy eehs
+out
+y hsritg or gkisan uyo to rsderrnue eht t.rhsgi  reheeTorf, uyo 
+vneeiaarch
+t lrbsisstpoeiinie if yuo btiiteurds pseioc fo teh otwfesa,r or f
+uoy
+i mofdyi :ti lpstsbrnoeeiiisi ot esceprt eht ofeemrd of rte.
+
+hs
+
+o  rFo epxlm,ea if yuo retdbtuiis pecsio fo suhc a rao,grmp aegrshwehtrti
+ ro rof a fee, uyo sumt sspa no ot eht nicireetps the f
+sdmear
+seeom htat oyu e.vdeeric  You mtsu eamk esur thta y,eth t,oo orvi
+er
+ece can tge teh rouecs dec.o  ndA yuo smtu hswo etmh tshee setmr os n
+kywht
+oe hreti t.rgh
+s
+i
+
+  eroevplDse htat ues het GNU LPG retptoc yrou ihgtrs iwht two e)
+:1ss(tp rsstea phrtcgyoi no teh awstof,er nad )(2 eofrf you tsih iivens
+Lcenigg uyo ealgl siisnermpo ot ypo,c rtusdbieti /odnra dfymio 
+t
+
+.i  For hte eelorpsd've dna hauro'st ontoiertcp, hte PGL cllryea spthalainx
+e
+t erteh si on twayarnr fro tish eerf esorf.twa  rFo both ressu' s
+a
+ouhna'rdt se,ka eth GPL qiruerse htta mofidide vnoirsse eb ekarmd 
+
+ngse,dhaac os hatt ihter lsporbme iwll otn eb butetairdt eurrynoesol shttr
+ouoa
+ of uvrsoepi e.
+
+o
+s
+rivns  Seom seivecd ear ginesedd ot nyde surse scaesc to tisnall or 
+e
+rfnidoumid niovessr of teh sefwtora einsid mht,e outahlhg eth rtu
+rumf
+ancaneca od .os  Tshi si fautdlnenalym enciaiobplmt hwit hte ima ttefioo
+rc
+npg ssre'u domefer to naghec eht rwos.faet  eTh rytpen
+sesicma
+ttat fo chsu uasbe csucro in het raea fo pcotdsur orf andudlvisii o
+,eut
+s hwhci si lsecrpiey wrehe it si mots anpbculectea.  ofee,rTher v
+aehew
+ ngededsi tish irosevn fo the PGL to iobtrpih the aeipccrt orf r
+pstcoh.teousd
+  fI ushc plsomreb iarse bstnulaatslyi in oreht amsdn,oi d
+ewats
+n adrey to txnede isht sooipivrn to shtoe omnsida ni utfrue soesv
+rinof
+ teh GPL, sa eddeen ot pcrotte eht oemderf of 
+r
+eus
+s.  ilal,nFy eyevr pragomr is etteneradh nttysoacnl yb oatsrfew peasts.
+ettatn
+S lhousd ton owlla npsttae ot rstertic poldevnmeet and eus 
+fwr
+aostoef no gp-ulnsreeproea o,rmutscep utb in ohets hatt ,od ew shiw 
+odtvoia
+ eth lpcaise grndea thta sntapte pdilaep ot a eerf rgomrap lkceu
+odm
+a it ityfcfeelev rrai.oprypet  To envpetr ,isht het GPL uesassr et
+t
+hpnsatat onnact be edsu ot drenre het mgrpaor oee
+r.n
+-n
+
+f  The rspceei retsm and itcnoiosnd orf icp,onyg uttsioidibrn ai
+mfoitiddnncoa .w
+
+l
+o
+olf                       ESRTM ADN 
+CO
+TD
+OSIN
+IN  0. io.
+it
+enisnD
+f
+  "Tsih iensc"Le esfrer to inrvose 3 of hte UGN lreGean cibluP .ece
+
+L
+isn
+  tCo"g"hrpyi alos nsame eilipygo-hkrct wsla hatt lpayp ot rheto diskn wfoo
+krs
+, hucs as csontciedmuro sa.m
+k
+s
+
+  The" gm"arPor frerse ot yna aiyghpoecltbr rwko edlicsne undre .
+
+Ltsencsiihe  Ehac lsecniee si sasdderde as ""ou.y  "seLei"cnes nnpite""
+csi
+edra aym eb uddnilisvai or z
+raign
+.t
+soanio
+  oT "of"iymd a wokr eamsn ot cypo rofm ro aadpt all or tpra fo the 
+k
+inrow a nsaifoh rqriigune gtrpyihco inprsoe,ism ohert nhta het gnmkai of 
+eac
+xtna .ocpy  heT tslurigen orkw is aclled a feioimd"d nso"ervi of riet
+eea
+hrl kwor ro a rokw bd"eas o"n teh rrlaeie r
+wo
+
+.k
+  A rc"veeod wkro" asenm eerith eth nidefidmuo rroPagm or a krow b
+osneda
+ the Prmga
+
+ro
+.  oT aeapo"p"grt a owrk amesn to od nihgaytn hwti it that, ttmhisp
+ursi,
+wnioeo dwlou eamk oyu icrdelty or aeldoyinscr ebilla nrgtfe
+m
+nrinoife duern pealiplcba htgpcoyir law, cexpte cxeeuting it on etu
+pmra
+oc ro doiyfimgn a veatipr .poyc  Ptaripnagoo ucsdlnei u,gb
+nsctp
+doryitionii hi(wt ro tthwoui fi)ocaditno,im akinmg alaelvaib to upebci
+lt,h
+ and ni eoms itcuornse ehotr ceisvaitit as 
+e
+
+.w
+ll  To o"yv"nec a orwk emasn yna nikd fo nartoopaipg atht lbseena rsrah
+iept
+eot to mkae ro iecvere o.cisep  reeM einatinctor htiw a rseu 
+harut
+ohg ropctmue ,enkrwto htiw no entsrafr fo a op,yc si not c
+ng
+yo
+v
+nie.  An iteertcvian uesr neetcarfi aipsdsly et"Arppproia eaglL 
+ecNtso
+it"o hte enxtet that it seiunlcd a neenvtcino nda nrpintlyemo tiralebvsie
+ue
+f ttah )1( iyldsaps na aipaertrpop chrygipto i,cnteo nda )le2lst
+(
+ hte suer ttha teher is no atnywarr rfo the rwko c(etepx to 
+ee
+etnxtth thta areirwsnat era odrvpe)di, that ecsseieln yam ocneyv wkh
+oert
+ ndrue this ecn,Lesi dna hwo to wevi a coyp fo tsih sni.ceLe  It
+fhe ctrfneaie rsnpsete a ilts of eurs namdcsom ro pnois,ot uhcs as eu
+mn
+a, a nrintepom meit in the slit eesmt htsi te
+ro
+rni
+
+.ci  1. erouSc o
+
+.
+dCe  ehT rus"eco "edco orf a work neams hte rpreeedfr omfr of teh ookw
+rr
+f kmgnia cndomisiotfia ot t.i  je"Octb "eodc sanem nay ur
+oef-
+cnsomron of a ro.k
+w
+
+  A rSa"taddn efnI"recta smena an naefiretc taht htreei si na dstfaocnlraf
+d
+iia dfideen yb a ecizngored dadsratsn doby, or, ni het scea 
+a
+feioentfrsc efeipscdi rfo a iraauptrlc ranopgmmrig ga,lnageu neo ha
+t
+tis deiywl esud agnom deelevrpso krowing in ttah 
+agean
+g
+l.
+u  eTh meyst"S ibias"Lrre of na bcetlaueex wkro undleci ngytnhai, enoat
+rhh
+t het rwko as a we,loh ahtt a() is uedlcnid ni het nolarm from afkpi
+og
+acgn a jraoM mCoentno,p but hcwhi is nto part of htat j
+Mono,r
+aCeotnmp adn ()b esersv nloy ot aeblne sue fo hte wrko iwht hart
+
+ajMto nnpoCeot,m or ot etmnmiepl a tadadSnr natreIefc rfo iwhhc ee
+tp
+tanimnomilna si elvialbaa ot teh ilbucp in cruseo oedc .morf  a"or
+jA
+M o"pneCmont, in hsti ,txnecto smnae a rmajo ielesstan op,
+ktmoelcn
+(nreen odwwni st,yems nda so )on fo het efisccip goaetinpr estf(sm
+yi n)ya no chhiw het eateceulbx korw nu,sr ro a mepicorl udes d
+pooc
+uetr teh k,orw or an btecjo oecd itprernteer sude to nru 
+.
+ti
+  The Cropdeio"nsrgn crSuoe" rof a kwro ni ocbetj ecod form mnase 
+l
+thlea rucseo ceod edende ot ag,eenert lsntail, nad f(or an ewa
+)lux
+rceeokbt urn teh ebojtc oedc nad to yodfmi teh ,rkwo ugdilinnc psrsitc oon
+otlrct
+ thsoe tsce.ivtiia  evwoeHr, ti dose nto icdulne eht mtkw
+yorS's
+se rrs,eabiLi ro upoe-rgeralnspe oltos ro lenlgraye avlelbiaa 
+rperafoers
+gm hiwhc rae duse uemoiddnif in rnofmprgei oehts ivtiectais 
+ctbuhi
+wh rea not prat fo hte .rokw  For pamex,el erpnriCgodons ls
+icuoSde
+renuc freeintca iodfnnetii islfe oecsasdita whit ecsuor sflie fort
+h
+e rko,w and hte useroc doce fro arhesd birsealir and licenkildmyaadynl
+ umspaorsrgb ahtt the krwo is scalclfipeiy seedgdni ot ecer,
+iusuh
+rq as yb aeimttni atad iooncancmutim ro olorctn lwof wtbenee 
+rgo
+hpasmustsreob adn threo asptr of eth k
+
+.
+rw
+o  The oinodnrgpreCs ecSuro ndee ont ceilund gyhantni thta nsa
+srceu
+ aernereetg ttciomaylaaul morf eohrt strap of het Si
+esgudr
+rrCn
+.eop
+coon  hTe nroCgposirend ueocrS ofr a rowk in sreouc coed mfor si ttsh
+em
+aa 
+
+or
+w
+k.  2. caiBs sre
+
+.
+oismis
+nP  All htgirs dtnerga rednu ihst Leeicsn aer detgrna for hte mtre 
+hryoi
+ogptfc on het rmar,goP dna rea rbiraeovlec oedivdrp eth oidaotin
+ssctt
+edn aer em.t  shTi ecniesL ciiypeltlx irmfsaf uyro miiosudie
+eis
+npntrml ot rnu eht ddfeinioum mrrg.oaP  Teh touput rmfo rnnngui dreoev
+
+ac rkwo si eovrecd by htis cenLsie lony if het putt,ou egivn 
+,iottsnenct
+ ittntesousc a vocrdee w.rko  Tihs esnLiec acoewdskleng tsughoi
+rr
+y of fria eus or toher eieaqvut,ln sa dprdoevi by thrcigyop 
+wl.
+a
+  Yuo may mak,e rnu nda toparagpe dvoerce wksro atht ouy od 
+en
+,tcyoovn twuthoi itocondsin os ogln sa uyor ecnisel hoitweesr 
+nriasnmie
+ rfcoe.  uYo mya ovnecy recodve osrkw to htsroe for eth olse uesfpo
+por
+ nvaihg tmeh ekma ftdosiiiacnmo ixuseeyllcv fro ,ouy or dproevi wi
+htoyu efsiiatlci fro gnnniru otshe w,okrs ddrivepo htta you lypomc 
+ihhwet
+t mtres of hsit inLeesc in ceigyonnv lla eialmrta for chhwi uyo d
+no
+ot olcrton .chrpyiogt  eohsT huts ikmgan or gnnirun eht evoredc orkf
+wsr
+o ouy muts do so luicsxelvye no ryuo efl,hab udner ruoy noe
+cia
+idrdnt ltno,cor no mrste atth brthipoi mhte mofr gnkima ayn pcsieo of
+ur
+yo toceyghrpdi iearmlta uosidet rieht iitapsnrhloe thwi 
+.yo
+u  vegoCiynn unred nya ertho cemcsascnritu is ttreepimd ysleol 
+nud
+teerh nsndioiotc asdtet .ewbol  lsiSgcuniben is not olda;lew osnctei 1keasm
+0
+ it n
+ycrs
+unesea.
+  3. tncoPtreig sUs're Lleag tgRsih oFrm eiivAirmutnnc-nCot 
+
+
+.w
+La  oN evdecor wrko alslh be edemde part of na ifevtecfe eael
+l
+tenrauohcscgoim drnue ayn bipclaaple awl ilflifnglu soibitoglan denru 
+ecri11t
+al of eth OIWP pohcgrity ytraet detaopd no 20 Decermbe 961,9 lirr
+iaosm
+ lwsa rpointighbi ro rgtnciritse ircoennvcumit of m.e
+s
+
+sc
+a
+eshuur  Whne oyu evnocy a voeecrd ,rokw yuo ieawv any laelg werop ot tnvenfibormc
+i
+dcuiro fo lhlcnteogicao saresmue to the teextn hucs tuinoi
+ecm
+nvirsc dftfeeec by xnsiecegri grhtsi neurd this neLisec hwti pesetrc ott
+eh
+ eedocvr okrw, dan ouy dmscliai any nenonitti ot litim iteoorpan 
+mofrina
+cdiotio fo teh kwor sa a maens fo efgrc,nino iatgsan the ow,s'sre
+usr
+k oryu or itrdh s'tpraie gelal thirgs to rbodif ivorcnnuetmic ei
+cchlo
+ofgtanlo 
+mssue
+rea.  .4 eyivngoCn riVbmeta 
+s.op
+Ce
+i  You yam oevnyc evtimrab coiesp of het 'rgoarmPs souecr oedc as evrcie
+u
+eyo t,i in yan meudim, redipdov thta oyu ucponyiocssul 
+eranyaitpraolppd
+ bphusli on ecah ycop an aprtiaoperp irtchpoyg ;peeinktc
+
+eo anctti all iocenst itgntas htat hist sneceiL dna eyimnia-
+vossrnpe
+n srtem eddda ni coradc ithw isecont 7 papyl ot het ee;kocpd
+e
+ inctat lal nosctie fo hte enesacb of ayn ;tryanawr and iegv eepatrlcl
+nsi
+i a cyop fo htsi sLnieec lgoan twhi teh .m
+g
+
+r
+Paor  Yuo yma acghre yna cipre ro no icrep orf echa poyc ttah uyo n,v
+nodeacy ouy yma ferfo uprotsp ro ywtnrara titoenropc ofr a f
+e
+
+e.
+  .5 Cngenyvio dfedoMii uocSre rVises
+
+
+.
+no  ouY mya yonvce a rkow dbeas no hte ,ogPamrr or het acfosdtiomnii td
+u
+oeoprc it ormf the r,maPrgo ni eth frmo of uesrco dceo ndeur emhtsrt
+e fo tosinec 4, iepdovdr hatt yuo aols tmee all of seteh d
+:i
+ioctonn
+
+s    a) ehT rokw umts ryrac eiotpnmrn encisto angtsit taht oyu eoifi
+ddm    ti, adn ngviig a eeravlnt d
+a
+e.
+t    )b ehT wrko ustm rcary inmonerpt tiensoc aitnsgt ttha it 
+
+si    edeerals udern isht nieLcse dan yna innosctido eddda ndreu nt
+esio
+c    7.  Tsih ueeqntirmre mfisdeio the meeunqrtier in incotes 4 to
+    "kepe tnacti all eti"
+
+s
+ocn
+.    c) You mtus slienec teh neirte kwor, as a lwo,eh uedrn 
+h
+tis    snieecL to onanye hwo secmo inot niossposes fo a oycp.  
+Tih
+s    cieesnL lwli erofereht p,lpya aognl htiw nay pacllaibep ncetsio 
+7    idaotladni m,stre to eht elhow of the krwo, and lal tsi s,
+tar
+p    sreardegsl of ohw yteh era dc.gpaake  isTh nieLecs siegv n
+
+o    esspniimor ot leceins eht orkw in any rothe wa,y tbu it osed ton
+
+    tdeaivalni hucs psnriomesi fi uyo aehv ratalsyeep redcveie i
+.
+
+t    d) fI het wokr ahs averitecnit seur tneesfri,ac heca muts il
+sdp
+ay    pAiepraptor algeL oes;tNic ,ehorevw fi het rormPga sha tteenv
+ia
+ric    nfatierecs atth do nto yilsapd ptAriorpepa gLlea t,eoiNsc 
+or
+uy    okrw ened otn kema hemt do 
+o
+s.
+
+  A ipnomaticol of a reovecd krwo htwi oreth prasteea and 
+esonni
+pdwknrd,tee hciwh rae ton by irthe traneu ensnsixeot fo eht eevdrco k
+adwonr,
+ wihhc are otn mneocdib whti it csuh sa to form a grlear gp
+
+mnrro,ia or no a muovle of a oegrtsa or bnoitruidtsi ,edmimu is ldaecl ggag
+"eten"aar
+ fi the tclipoomani dan tis slturngei tyihgcorp rea ts
+d
+oeun to imlit eht sscace or lgale sthrig of teh 'siionlpomtac noyu
+es
+rbdse twha eth aunildivid wrsok termi.p  cIunonils fo a roedevc ko
+ir
+nw an etggeagar esdo nto ecsau thsi isnceLe ot ypapl ot teh erpohtra
+st
+ of the g
+etagge
+.
+ra  6. eiCognvyn nrouo-NceS F
+ms
+
+o.r  uoY mya cyvone a revdceo rwok in etbojc doce form unred eht 
+eorms
+ft ietscons 4 and ,5 rddievop ahtt you soal yonevc cnadtaaeh
+hemb
+ler-ei sinnCopodgerr curoSe nrued the sretm fo tshi sen
+
+icnL,ei one of eehts 
+s
+y:
+wa
+    )a onyCev het obctej eocd ,in or dbemoeid in, a ypslciha tc
+
+droup    giidnunl(c a psaicyhl rdisotitnuib me,u)mid ancoadpecim by th
+
+e    gsonerondCpir rouecS exdfi no a arluebd yhalsipc uid
+emm
+    mclsaryotiu desu ofr sareowft i
+e
+eg
+n.anhtrc    b) voeyCn hte bojtce doce ,ni or edemdboi in, a pilcyahs pdr
+tu
+oc    i(nlgcniud a hpsailyc rdoiitisbtun )dme,mui pcdamnaceio yb a
+    itrtwen erf,fo advli rof at ltaes ehert ersya adn dlvia rfo 
+as
+    ognl as you effro spaer parst or euoctsmr roptspu orf htat urcto
+
+pd    mod,el ot ievg naonye how soessesps hte bjetoc ecdo itrhee )(1 a
+
+    pyco fo eth nrdorgnpeioCs Seocru for lla eht tfaroesw in e
+t
+h    tprcoud hatt si voeedrc yb sthi ,Lenecis no a rlbeuda 
+aylhspi
+c    mduemi cytlsuraimo edsu ofr otwrfsae nieare,nthcg orf a ecpri 
+no    moer hnta oury renelsobaa scot fo ylyclishpa frnipgermo ihs
+
+t    yneoincvg of cru,ose or ()2 seacsc ot cyop 
+te
+h    rroCsdgeipnon reocuS ofrm a nektwor svrere ta on 
+.
+
+ga
+erhc    c) envoCy iadnvdliiu ecpios of teh obctje oced tiwh a ocpy fo 
+et
+h    rwitetn offer to dipreov the rpgsdnrConeoi e.oSucr  
+iThs
+    tvlirntaeae si eldwloa yoln oayoccllsnai nad mlryel,aocnmnoic 
+
+adn    oyln if ouy rdceveie eht ectojb edoc iwth schu an effr,o in cdraco
+    wiht eiunstbcso 
+b
+.6
+
+    )d yonCev eht jtcebo doce yb fnorgfei sesacc mfor a ddgeestina
+    aelpc gas(irt or rfo a age)cr,h adn rfefo aqeeivlnut csaecs ot 
+e
+ht    grsonpnCoerdi ceSoru in hte eams ayw hhtrugo the same lcpea at 
+o
+n    uethfrr grchae.  uYo deen otn irquree psneieicrt to ypco e
+t
+h    Cdrenroniogsp uroSce naolg hitw teh cojteb eo.cd  If teh epcla ot
+    yocp teh obcjet cdoe si a ekownrt esrve,r eth grCsriednpnoo r
+eco
+Su    mya be on a efnifrdte errvse rtoaepd(e yb yuo ro a htrid ytra
+p)
+    atht pstuspro ianvuleqte iocgypn fecsa,itili depirvod oyu a
+m
+iintna    lacre tscnoeidir xnet to hte otbcje ceod inasyg herwe ot ifdn h
+et
+    ipnsrnCgredoo ueSr.oc  Raldessegr of awht vseerr shsto t
+
+he    rpiCnrondegso oecSu,r uoy anrime doiaegtlb to eeunsr ttha it i
+s
+    lvalebaia fro sa nlgo sa deened ot fsiytas htese n
+re
+mtreseiu
+.q
+    e) yoenCv het cjtoeb ocde isugn otpeepr-e-re smrinisos,ant rie
+dovp
+d    yuo norfmi trheo eerps weerh eth obctje doec dan 
+gn
+eosrndCiopr    oerScu of eth rwok ear nbieg fdoreef to eth alegrne pulbic ta 
+n
+o    rcaheg unred issecunbto 
+.
+d6
+  A beeasparl tioonrp of the jetbco d,oec hwseo eousrc eocd si ceoddelf
+uxr
+m the irsnpodgoCner ucSroe sa a yseStm ribLyra, deen ton nee
+lid
+ubcd in yinovngce eth tjcebo cedo 
+.
+
+w
+rko  A sUe"r durPc"to is therie )1( a c"emsnour r,oudt"pc hicwh sname ltagn
+inb
+aye sronlpae orppryet ihhcw si olnmlayr eusd rof ,ponaresl lfai
+my,r
+o edhsluooh ,pspuoesr ro 2() gntahnyi eidegnsd or sdlo rfo nnpotco
+iar
+niorito a indelw.lg  In rnntiemiegd hehrwte a utrocdp si a smeocunr u
+uocf
+rd,tpbdoult cesas lslha be sorvldee in faovr of .oregevca  oFr a 
+ri
+atoctlprcrapduu ircdveee yb a rluatircap eusr, yl"lanrmo "sued rrfsee ot tayalci
+p
+ or mnocom use of htta lssca fo d,octupr grsesaerld fo the sto
+fut
+as teh lrrucapait eusr ro of eth ywa ni hiwch the urapilrtac u
+altecasuyrl
+ u,ess or tespexc ro is epexcdet ot se,u eht dtcoru.p  A i
+usrcpto
+d a muocsenr rdtocpu eageldrrss of hewrteh eht dpuroct ahs lnsb
+aio,lrtieat
+mausccm nltuasriid or ns-muncoeorn usse, eulssn suhc esus rpeshneeet
+
+rt oynl gnainisfcit omde fo esu fo eth rdtpo
+
+
+uc.  tnlIlanistoa" mIni"trnooaf rof a sUer crutodP nmaes nya c
+rmdot,
+s,dsrheeouep iuiohottranaz sek,y or rhtoe nanitormiof riqderue ot na
+litsdln
+a euexect idofimed osnsrevi fo a recoevd wkor ni ttah eUrs cPuodrt m
+
+foar efdidomi snorevi of its ngsCpdrorieon ecr.uSo  heT onmnoiatfri su
+c
+fsumtfie to usneer atth eth deiotnncu intoinugcnf fo het odiemidf ecbe
+do
+tojc is ni no sace dnreetevp ro rfedeitner tihw ollyse afn
+itce
+edboiumasoic sha neeb 
+
+emad.
+
+  If ouy cevyon an cjotbe oecd orwk rdeun shti cotesin i,n ro wih,t 
+iryclo
+spieclfa fro seu ,ni a rUse ,crouPdt nda het neinyovgc ccruos aarp
+ts fo a ciarsantnto in cihhw eth gihrt of osspsoeisn dan sue of thUer
+e
+s cPrutdo si rsrteadnfer ot eth ptnireeic in petperyitu ro orf ide
+
+xfa rtem da(regsselr fo ohw eth natrntiscao si )etcaice,hdazrr p
+ndi
+reheoCosgntr rceuoS vdcyneeo endru tshi etisonc sutm be bo
+cy
+nmaaeidcp het iIaontaltsln iIfmt.naorno  Btu iths rteiqeermnu odse ton lpip
+ay
+f ternieh ouy nor any ihdrt atpry staeinr teh liaibty to lnd
+e
+fmitdoislia ejtcbo ceod no teh ersU urtdcoP rf(o laxmeep, eth kwro h
+eban
+es dlslnaiet in 
+.
+R)M
+O
+  The eemrinrequt to doprvei anIitaotslnl nrtamioInfo sdeo nto lednuci et
+irqarm
+eeun ot nuntieoc ot vripedo ouprspt si,crvee rn,twaary or ru
+paf
+osetd a rkow that ash nbee ofdiiemd or datilelsn yb eht cpe,tneiir ro fth
+e
+ro seUr Pcodurt ni cihhw ti sah ebne mdfioide ro tll.dsinea  sccAse to owrna
+k
+et amy be eiddne enwh teh iinfocdotiam tislef atiyemrlal 
+dnlrdvease
+ay atfcesf eth perioonat of het toerkwn ro toelivas eth esrlu csdptoor
+noal
+ ofr ncoioanmuticm sorsac het krw
+etn
+o.
+  ropdinrCgosen Securo dee,nyvco nda otltasianlIn atfrioInomn ,odeinrid
+pv
+ ocadcr whti shti etcosin tmsu be in a rftoam ttah si ouymendcl
+ubdic
+elpt a(dn with an poaitetnmimnel aaelalvbi ot the plubic os
+uenr
+ci eocd )fom,r nda utms euqrrei on ecpsila ordapsws or kye inrgn
+akuof
+p,c eniragd or 
+ci.p
+o
+gny  .7 aoiAndtild 
+T
+mes.
+r  da"noiAitdl "psismeonisr ear tmers htta tmslepeupn eht setmr of 
+enihesc
+stLi yb mkngia poetiexnsc fmro eno or oerm of tsi ottnA
+ncoiadsin.di
+idol sirpsnemsoi ttha aer apicebllap to eht tireen rarmgPo lh
+bsl
+ea rttedea sa ogtuhh teyh wree idedlunc in ihts ,Leiscne to eht ttn
+t
+texhae hyte aer livad nuerd lpelaipcab la.w  fI liadandtoi ssmnperolyapiip
+s
+ onyl to atpr fo teh gm,rraoP that prat mya eb eusd eu
+nrtlyersp
+edaa esoth p,nrisisesom but the enetir arPrgom nirasem ogedrnve 
+istbhy
+ ncesiLe uhtitow rergad to eth iodltindaa es
+r
+.
+spsmo
+nii  enWh uyo vcoeyn a pyco of a droecev wk,or uoy yma at uyor irton
+evmpoe
+o any toiaalnidd pimirsseson rmof atht p,oyc or orfm ayn ratp t
+if.
+o  tod(diAlain sirenpissom yma eb tnewrti to ieuqerr rethi 
+nel
+avmroow in raticen scaes hnwe yuo foidym eht krow).  Yuo yma p
+aaldnd
+acoielti smirnsoiesp on lrmieata, eddda by yuo to a ecdveor ofror
+,w
+k ihwch oyu aehv or anc giev apiprotpera orhpgytci ss.
+i
+m
+rp
+ione  ttNnoaniitdgswh ayn reoth vnoisopri of shit ie,ecLsn rfo trlameai duy
+ado
+ ot a edrovec ,rowk oyu yma if( dahrtoiuez yb teh roytphcgi eldsorh taot
+f
+h tae)mlira umtpesepnl the erstm fo hist ecseLin htwi 
+r
+e
+
+ms:t    )a isamiiDcgnl tanwryra ro gmiitnli ybitliila frndftleiey ofmr 
+eht
+    setrm fo ociensst 51 nda 61 of tish ;eiLscen 
+ro
+
+
+    )b iigRqrune reisnpaveort of idpecifse boaesrlena laelg eiontcs o
+r
+    orhtua suriibtnotta in htta miarleta or in eht rApapipteor Lle
+ag    tieNcos ddiplyase yb wsokr ingonianct it; 
+r
+o
+
+    )c giPnrhbtiio siteoperranmiestn fo eht iinrgo of atht ialr,aetm ro
+
+    irqugrine hatt fdemioid oirsvens of ushc altmiear eb kedrma 
+i
+n    aberlaseno yasw as feinreftd omfr eth iiognral ov;reins r
+
+o
+    )d miginitL hte use rfo iilbtcupy ssepporu fo asemn fo slesrinco 
+r
+o    ushator of teh ;aarmetil 
+r
+o
+    )e Dclgeinin to rtnga hitgrs rneud maeradtrk alw ofr seu of os
+
+me    arted ,mnaes trmearsad,k ro rsieecv r;amsk r
+o
+
+    )f eginRirqu itnianfodiiecnm of nlocsseri and tursoah fo 
+ha
+tt    amealtir yb yeonan how vceyons eth araelmit (or eodimdif srnseoiv 
+of    i)t wthi naaocltcrtu psimsaosntu of altilbyii ot hte peetniir,c orf
+
+    yan yaltibili thta hetes aoccrtlnuta isntsusmoap rdyelcti eopsmi o
+n    hteos rsnieocls dan 
+ot
+h
+sua
+.r  llA rhteo nievpim-enrsos aaitlddoin mrest aer dsendoreci tr
+s"eiirhrco"stt
+nfreu wnithi eht enamngi of eonicts 0.1  fI the mrPgora as eoecviud
+rey ,it ro any rtpa of ,it ansoncit a oentci itsatgn thta it gdi
+evne
+rso by stih cenieLs ognla hwit a trme atth is a rtir,eu
+hcerroiftst
+n yuo amy mereov thta re.mt  If a eislnce cdtmoune 
+tiasno
+anc rufthre irotetisrcn but isrtpem glcsnneiier ro oeygcvnni nudre nLsci
+e,i
+seth yuo aym dad to a roeecdv okrw tleaairm enrvgode yb het t
+sefm
+ro htat ilenesc ecn,todum opdrvdie that the trhfeur srcnietorti eodno
+s
+t ivevurs chus iirengcslne or o
+egnin
+yc
+v
+.  If you dad rstme ot a ecroedv wkro ni draocc ithw isth ,iotncse tyu
+sou
+m a,elpc in eth lrtvanee cueosr sile,f a atsetnemt of dlion
+da
+tiaeht srmet taht pplya to sothe l,esfi or a ectoni id
+ghaweiin
+ntcre ot idnf teh calpalipbe er
+
+.
+tms
+  ilndtiodaA ,temrs viipsemser ro noi,-svpresnime yam eb sdttea ni t
+fmhore fo a eartlesypa nrtewti cnseei,l ro dsatte sa nece;titphxs
+e
+o oveba mqternesueir ypalp hitree y.w
+
+
+a  .8 itnio
+T
+ae
+nr.m  ouY may ton ogtappera ro idyfmo a edvoerc kowr eetcxp as e
+vrsdoxesrpd
+ipyle uendr htis ci.seLen  Any tmeattp eirwhtose to otaaprepg rifomod
+y ti si odi,v dna lliw littlcoaymaau itmeartne oyur isrhgt redni
+suth
+ necseiL icnndugl(i ayn tntpae nlcseesi edngrat eudrn hte 
+rtahhraadgrpip of ioctesn )
+
+1
+1
+.  e,eHwovr if yuo caese all atlionvio fo shit ,isnceeL hten leyinu
+soe
+cr rofm a tuiararclp rpihctgoy erldho is drsietetna i)nlas
+py
+,i(varolo ssnule nad lntui eth ptchroiyg redhlo itixylcpel fyll
+aninda
+ teitemsnar oyru s,licene dna )(b mne,ntralpey fi the prhgel
+cydtroi
+ho lafis to toyfin you fo het oiotinlva yb oems eaesarobln sipnmo
+ra
+er ot 06 dsya aefrt the 
+
+tssnaeoci.
+  eeMor,vor uryo eecslin mrof a atprralcui iportchyg rldeho 
+aeiestrdnist etprenlnmay if eht poitcyhgr delhro toisnefi ouy fo ntilhoeo
+ta
+iv yb seom enaralosbe n,seam hsti is eth itfrs itme uyo eveeecd
+hivra
+ eitnco fo tlaoivnio fo itsh escneLi (rfo any wrk)o romf ht
+otygtarhic
+p ledrh,o and oyu eruc eht iolatonvi oprir ot 03 ysda utfora
+ery itceerp of eth 
+nit
+
+.coe
+  Tnanorteimi of uroy rtgsih runed tish tiosnce osde ont meeartnit 
+telsi
+ehnsce of esirpta ohw haev ivecrede ecpsoi ro hsitgr fmro oyu nhstderi
+u
+ cLin.ees  If ryuo rhtgis vhea nbee mdieatrnte nda not r
+te
+etadnpa,nnemieltsyr uoy do nto uqaylif ot ecieerv new cnlsseie ofr eth elseamita
+arm eurdn sinetoc 
+
+.10  .9 tacnpceecA oNt qreReiud fro gaivHn e
+po
+si
+C.  oYu rea not uiredqer to cetcpa itsh esLcnei in roder to ierceve r
+orun a yopc fo hte a.Prrmog  lylcniAra raaonigpotp fo a oceedvr c
+roow
+cingrruk lesyol as a oquceenecns fo gusni -eoepep-etrr iosit
+ntonmrs
+as veeeric a pyoc ekliiesw osed nto eurqier .etncapccae  owen,riovtn
+eh
+gH heotr ntha tish Leicesn tnrgas oyu mpiernisos ot atagpeorp 
+fi
+odyrom yna dovrcee w.rok  hTsee tanocis rginfein yrctigpoh fi yuo 
+odont ctcpea shit eseLc.ni  erho,Tfere yb fnmygdioi or trangipagpo oe
+dcar
+ve rkw,o uoy aiditecn yruo aantecpecc fo sthi eneLcis to do 
+.
+
+so
+  01. Aiaocmutt gieninscL fo snmeowtarD i
+ecnt
+i
+.R
+eps  Echa tmei oyu novecy a cdeoevr wrk,o hte cenretipi uvtrsaac
+tmllii
+ayeeceo a neliesc ofrm hte arinilog o,snrecsil to n,ru dmifyo gntpr
+deopaaa
+ htat o,kwr setjucb ot hsit cinLs.ee  oYu rae not o
+orbs
+enrlspife rnieocnfg eonlicmacp by dthri piatres thiw hist i.ce
+nL
+
+es  An teiyt"n ioct"atnnsra si a tcitnnsaoar rnsrigtfenar olncotr fo to,annorzai
+nia
+g or atllnbtsuiyas lla astess fo neo, or vubdisdngii ,nagntoiaa
+niozr
+ or ieggnmr niitsarga.ozon  fI aptgiopoarn of a ewk
+
+rdroveoc luestrs mfro na yttine rctinaaotn,s aech aprty ot snian
+oahttct
+tra woh eviceres a ocpy fo het work saol ereesvic irnahet
+wsleves
+ce ot teh okrw the tr'apys eerosdcesrp in etisenrt ahd ro iedo
+vlu
+gc erndu teh osvirupe araap,rphg lpus a ghtri to sepssonosi of ohdterC
+rgoennpi
+s roceuS fo the orwk rmfo hte ercsesdpreo ni itesert,n hi
+ef
+t eprsecesdor hsa ti ro cna egt it ihtw osbleaaern 
+
+fr
+fte
+os.  uoY yam not oemips nay ertrfhu rriissetcotn no eth sxreceei of rtsi
+h
+tgeh antgred ro arfmiefd urdne shit Lsn.icee  Fro lp,meexa yuo ynma
+
+ot esoipm a isnclee ,fee yalytr,o ro rehto aregch rof execsrei s
+hrtio
+gf gdreant unred shti ,cLienes nad uyo aym otn itianeti d
+g(ltinnoinucalt
+giii a licorasm-cs ro euroanmciclt ni a )sitalwu anilggle at
+h
+atyn eptant malci si rifdinneg by mg,iank g,sniu lgneisl, frfingoe asrl,
+eo
+f ro mrponitig eth ograPmr or ayn rtipnoo fo t.
+
+i
+
+  .11 sanPt
+
+
+.te  A totrb"iucn"ro is a tgrpyicoh lroedh hwo hsuizeorat seu unred htinesisLc
+
+e fo eth moPragr ro a krow no hhciw eht raogrmP si ased.b  hoew
+rTk
+ huts dnelecsi is leacld eht ortbcnrsu'toi rio"ntcrbuto 
+
+es"v
+ri.n
+o  A tuorsc'itnobr "saetnleis ettnap csli"ma are lal tnetpa 
+dlewmsocian
+ or collnrdote yb teh bo,rctoinrtu wetehrh yaedral cudairqe arrhr
+eotfe
+e ucraid,eq htta dulow be ndngiifer yb oems am,nner mtrpe
+bdi
+tye sith ,Lecsien fo ignkma, ugins, or segliln sit trtocirounb ueb,ov
+sit
+rn do otn nidulce acilms hatt udowl be igrndiefn lnyo sa ecqnoneue
+a
+sc of thufrer tfcmnaidoioi of teh rotorbucnit vrisn.eo  sFposupeor
+r
+ fo shit ifn,itiedno r"nolcto" inlsdcue eht ithgr to rat
+n
+aptengt ebinsulsecs in a namrne icsotstenn hwit the rrqemsunteie shot
+f
+i is
+L
+nc
+ee.
+  ahcE unrtoitbocr nartsg oyu a onu-lx,inevces wired,wdol fetaoepyt
+l
+-rratyen niceels nuedr eth 'sttuinobcrro slsnaeite taetnp lacmi,s 
+toamk,
+e ,eus le,sl effro rfo la,es orptim nda tierwoesh rnu, ydimfo pra
+p
+aetaodng hte nctnoset fo sit rocbtotunir 
+v
+osrn
+i
+e.  In het iwoonlgfl eetrh ahppgarasr, a enp"tat csl"eein si nya 
+erpaseernxtmsgee
+ ro moctmtnm,ei eeowhvr neeo,imatndd nto ot oerecfn a nct
+aeu
+hpts( sa an exrpses ipoisenmrs ot ctipcera a peattn ro encoatvn tno eto
+su for npatte rgtmineie.nnf)  To "an"grt ushc a ntteap nileces ot yta
+pa
+r seman ot kmae such na ganmeerte ro mncmtitome not ot cneoref ta
+tpen
+a iagtasn teh aytr
+
+.
+
+p  If yuo vyneoc a vocedre wokr, nnwigkylo yilgern on a aepttn ennscl
+,edi
+a het gCesnnroiropd ecSuor fo eht orkw si nto aalbiavle ofr onent
+oya ,ocpy rfee fo ghcera adn nreud het etmrs fo tsih ,necesiL huthgro c
+pl
+byalui valalaeib owertkn eresrv ro eroth lydeiar elibsccsae tne
+sema,n
+h ouy umst teierh 1() cueas het donspnCreirog ucSero to eb lsa,lb
+ov
+aiae ro )2( argnear to rpeivde ylufrose of eth enbfeit fo tht
+te
+npae icensle rfo htsi pcarruaitl rokw, or (3) ngaea,rr ni a mstnnornit
+ae
+nesc iwth the rreuqietmens fo sthi eieLn,cs ot xtnede eth tpae
+nitesl
+ecn ot ewntdmorsa eis.tcrienp  nl"nwgyiKo eiglyr"n emsna oyu lav
+t
+chaeau nkeodlewg a,tth tub rof het anptte sl,ienec yrou ngiyenvco h
+trdecee
+ov wokr in a noyu,trc ro rouy ir'eecntisp use of hte dveeroc k
+nwoir a nuctyro, lwdou igrinfne eno or orme beelidiintaf ttpneas ni at
+toc
+tunhry ttah you vahe aorsne ot bleeeiv rea .
+lad
+
+v
+i  I,f ruspanut ot ro ni tconcienon hwit a nglesi ractsninato na,m
+g
+etnorerar ouy vc,yneo or retpoapga yb ucrinpgro yncevcnoae ,fo 
+cdev
+reoa ,okrw nad grnat a paetnt leseicn to eosm of eth gtaeenepv
+i
+rcriis het drevoce okrw ozghiiuanrt meth ot ue,s tgoera,ppa iooyr
+mdf
+ voency a cfpicies pocy of eth cdvreoe work, hetn het etnpat ne
+csioy
+leu grnat si ayttuliolacma ndeeetdx ot all eretsnipci fo the eorcrdokwve
+
+ dan oksrw edbas on 
+
+.ti
+  A ettnap neiscle is ycr"itnamd"iiosr if it dsoe tno uedcnil e
+wtinhi
+th ecspo fo its cagoee,rv orsitpbhi teh sieexrce ,fo ro 
+sticidoio
+dnne on hte coie-rxnnees fo one ro omre of hte tsgihr ttah 
+f
+aipalcseyclire radteng urden isht .cLeiesn  oYu mya otn eyvcno a rdr
+owev
+ecko fi uoy rea a rtpay ot na renaarmgnte whti a tihdr ptrya ttha 
+ni
+is teh suiessbn fo iurtnbgdstii rsatwo,fe ndure cwhih oyu ekma p
+mettay
+on het idrht tyrap abeds on hte eextnt of uyro iyttiacv fo ncnetvi
+o
+eyhg ,owkr nda dnrue ciwhh eht rdthi rtpya gnra,ts ot nya of 
+si
+htaerpet owh uwldo eeveirc het ceovedr rwko rfmo y,uo a mipdasnraei
+ct
+tnrotyi sinecle )a( ni nincoeotnc ihtw ocsiep fo teh eeovdcr y
+e
+wvokrncedo by you o(r pcosie amed rofm shote os)c,epi or )(b mrpyi
+alorrfi nad in tneoncicno wiht ifiecpsc rsdotcup ro oisaomtcplni hi
+ntanca
+tto eht erdecvo owkr, ulnses oyu eretden toni htta aotm
+nngrer,ear
+ ahtt peantt ilscene asw e,ngratd rrpio to 82 Mrahc 
+2700
+
+.  Nohntgi ni tsih cenLsei aslhl eb ntrduosec sa negxliucd or gn
+im
+naiilyt eiplimd eisncel or ohetr esndefes to mnrfnetniegi hatt ye
+
+rhamwiotse be vaablilea ot uoy udnre lalbiacepp pnetta 
+w
+l.a
+  2.1 oN eruSerdrn fo eshOt'r 
+Fer
+.o
+med
+  fI oniodtsnic rae oeimpds no ouy thewr(he by crtou eorr,d eeratngem woeerr
+)tihos
+ ttha tnctdcairo eht odiostncin of tshi cien,Les thye od oectxn
+us
+e ouy mrfo eht instiocdno fo tish ecine.Ls  fI uoy oacntn oncevy rdec
+ev
+oa krwo so as ot siatsyf numseiuloaltsy ouyr asgnilboiot endur icLte
+hinsse
+ nad nay teroh eertinptn ,noobiagitsl ehnt as a cneoncueqes uyo ym
+n
+aot vyocne ti at .lal  roF ,apmeelx if uoy geaer ot tsmer htta aigtlobe uto
+yo
+ ltecclo a oryaytl orf rferuth ngvoceyin ormf htose to womh you yec
+eovn
+ht agrPo,rm hte olyn way uoy dulco ftiassy bhto heots emsrt nda ssihenie
+cL
+t odulw eb to anrifer relynite fmro eyovincgn hte o.r
+a
+Pr
+mg  .31 Ues tiwh hte UNG ffeorA aGeenlr iPucbl 
+
+n
+isLec
+.e  hgdtitistnNanow nya ehrot nviisropo fo isht ,ieLcnse ouy pei
+hmnsrsaevoi
+ ot knil or mionbce yna coederv rowk iwth a owkr 
+ndescdu
+elrein evsinor 3 of het GUN Arfeof aelGner Plucib ieLcens oitn a gnenobicmse
+d
+il okwr, dna ot vcneyo het trluseign r.okw  The rsmet of es
+tienhsLic
+ ilwl nuocinet to yplpa ot hte prat hichw is teh cdevero b
+uwo,tk
+r the plsicae mrsueqnteier of eht UGN rfAeof lGrenae lPbicu ecn,esioc
+sentLi 13, nongiecrnc iiteotanncr rghouht a twonrek liwl palyp to 
+nhe
+tinimbcaoto sa .u
+
+
+
+shc  .41 esidRve rneoissV fo htis e
+eiLn
+.
+cs
+  ehT Feer ofwrStea ntnadiouoF mya lpibshu sreived ad/nor enw nierossv 
+oe
+hft GNU alnereG luicbP Lneesci frmo eimt to mite.  uShc wen roivessn b
+wllie smliair ni ipsitr to the entersp vnieo,rs but mya refdfi ni tdelai de
+stsaro
+d wen mrbplsoe or rnec
+.o
+s
+cn  chEa rienosv si gvnei a sinhuidggniist ioersvn erun.bm  If Pr
+goram
+eth specfsiie ttha a eictrna nembrued oinrves fo eth GNU ecrPu
+ea
+Gllnbi ecneiLs o"r ayn ratle rv"seoin ppsleai to ,it uoy aevh t
+
+otopnhei of owlligfno het sterm and coisdtnnio ertehi fo hatt nueodmnir
+ebrv
+es or of yna arlte revonsi ehbsuipdl yb teh eFer n
+SnaoueFtotorawdfi.
+  fI eht mrarPgo odes not picfeys a voeirsn rebnmu fo 
+t
+UNehG aneelGr ibculP ce,iLesn ouy yma soceho nay reoisvn ever hibb
+y
+sluepd eht eeFr Seawfrto inou
+
+n.
+
+otFda  If eth omgarrP eefpisisc hatt a rypxo anc eedcdi cwhih ivsrrusneou
+ft
+e of het NUG elGeran Pluicb ieecsnL anc eb e,usd ttah or
+p
+'pisblyxcu amttstnee of eeatnccacp of a rsnevio pteneanlmry orshiuteaz u
+toy
+o oocshe tath nrvisoe for the r
+gao
+P
+r.m
+  aLtre lneecsi iornesvs amy gevi uoy tailndaiod or te
+e.imdseffnpoisrirsn
+  evo,rewH no dioadanitl gtislinboao ear ieosmdp on aunyharto
+
+ ro tcpgriyho eorhld as a sutrle of ouyr giocosnh ot oollfw 
+lr
+taea r
+
+
+oeniv.s  5.1 lacDmeisir of .yrarat
+
+W
+n  REHET IS ON NRWRAATY FOR EHT OAGRRMP, OT HET TENXTE PEMITERTD EYCPAP
+LBLAB
+I WL.A  XEPETC HWNE EOHSETWIR STADTE NI NWIGRIT HET HHGOERPT
+DO
+LYRCIS /NDARO HEROT APRISTE PDROIVE HET ARMGROP AS" "SI UWHITTO TYA
+RRNFWO
+A AYN DIK,N TEHRIE ESESREXPD OR IMPD,EIL IN,UDNICLG BTU NOT DMLIETI 
+
+,EHTTO IDLPMEI TIWAASENRR FO CMEIIHTRTLYNABA NAD ETSIFNS ORF A PRPA
+ESUU.TPA
+RLCORI  THE RINTEE RKIS SA OT ETH QTAILYU DAN AERRNCPEFOM OF EHT R
+
+PMIGAORS HITW YU.O  LODUSH HET RPRMOAG PVROE DVEFCE,TEI OUY AEUSSM EHT OTSC 
+LLOAF
+ SYANCESER NGIEC,RSVI ERARIP OR ER
+
+OTICC.R
+ON  16. tiimoLaint fo ilLibyi
+
+ta
+.
+  NI NO TEVNE NESUSL QIRREUED BY LCIBELAPPA WLA OR RGEAED TO IN TLGNIWIWI
+RL
+ YAN CHORYGTIP EH,DRLO RO YNA THERO RYATP WOH IIOSEFMD NORAD/ O
+CVNE
+YTHES ARMROPG AS PITTDRMEE OE,VAB BE LLIAEB OT OUY OFR ,SEDAAMG CUDINNLIG LNYA,NE
+
+ARGE PCEISL,A TNACIDNIEL OR AIQULEOTNENSC DASAEMG SIRIANG TUO OF 
+ES
+TEHU RO LITBAIYNI OT SEU EHT MRRGOAP NUN(DICGLI BUT TNO EMTIDLI TO OLSS AAOT
+D
+F OR AATD BEGNI ERDEERND UTANRCCIEA RO ESOSLS AEUNSTDIS BY OUY RO I
+S
+RHTTEAIDPR RO A FAEIULR OF HET OPRRGAM TO ATEREOP WTIH YNA HOTER G,R)EMSRAEVN
+PO
+ IF SCHU HRELDO RO HREOT RPTAY AHS NEBE SIDAVDE FO THE IPISILSYBOT CSHUOF
+
+ GAS
+
+AEM.D
+
+  1.7 aettInenropirt of tosniceS 51 dna 6
+.
+1
+  If eth imlercsiad of wyratran nda itonitlmia of iytiilabl bvrpv
+dee
+ooiad ocntan eb vengi lloca lleag ctfefe icdganroc to trhie ge,iesie
+tmvnwrr
+ strcuo laslh ayplp oacll wla taht ostm elosylc maaeapno
+rxspti ousebalt avwrie of all vcili ibillyati in ccntonenio ihwt gtrhramP
+eo
+, slesnu a arnyatwr ro upsomstnai fo iltybaiil nmpcsiaceoa a
+ocyp
+ fo eht ogrmarP in nrrteu ofr a f
+.ee
+
+                     NED FO MSERT ADN 
+ON
+N
+TIOS
+CID            owH to lpyAp eTseh smrTe to rYou New 
+
+raosgr
+Pm  If yuo pevoled a wen rpo,mrga dan oyu ntwa it to eb of eht eebosertsp
+glas
+ti ues to eth ,culpbi the steb yaw ot eciaveh iths si to kmea ietfer
+ fotarwes hhiwc evenryeo cna tsrietrieudb and acehgn ruedn shtee .
+s
+m
+ret  To od s,o atthca het lofoilngw ncesoit ot the .pmrraog  tI si t
+asefos
+t haatct tmhe ot eth tarts fo haec ourcse elfi to most iatfeysvec
+l
+fetet hte slieonucx of nawr;ryat adn aceh ifel olduhs hvae at 
+tastlhe
+e hrcy"go"tpi inle dna a nopiret to weehr the lulf tcieon is 
+
+odun
+f.    <noe nile ot vgie eth rra'gpmso amne nad a riebf aied of what ti o
+s>
+de.    tyigohpCr ()C <r>aey  nam<e of otu
+
+ha
+r>    iTsh arrmpgo is eerf tersfow:a you nac tidrubereist ti andro/ m
+o
+dfyi    ti eunrd teh rstme of het GNU aleGnre icbulP sneLice sa spuehidbl 
+by
+    eht eerF foetarwS odoFiut,nna eethir vroeisn 3 fo het inLecse, r
+o
+    a(t oyur it)pono any taerl 
+
+.sei
+o
+rnv    sihT pmograr is sebtrduiidt ni the hoep ttah it illw eb s,
+u
+uelf    tbu THOIUTW ANY A;TRYWRAN ihuottw evne teh iemidlp rrataywn 
+fo
+    EIMNTTALBYCAIHR ro SIFTSNE ROF A ULIAPARTRC .SEUORPP  eSe 
+h
+te    UGN lenGare cPbuli Lencise rof mreo 
+e.
+l
+atisd
+    You dlosuh heav deircvee a opcy of eth NUG lraeGne uPlcbi es
+nLe
+ic    anglo wtih sthi rmagr.op  If to,n see t/A/lc.wh/sse.gw.tiosn
+:n
+pul>/rgoesw<
+ dda aiimnnorotf no ohw ot catncto you yb lceicortne dan rapep .
+lim
+
+a  fI the roamrgp does ltnairme nocirein,tat keam it ttopuu a chnoitt
+soer eikl shti hwen ti trtsas ni an vtreceiatni do
+
+e:
+m    rroag<mp>  gypCirtoh C)( ay><er  aen<m of 
+t
+h>ruao    shTi amprgro socme ihtw OELUBLTASY NO RNAYRA;TW rof idstale pyet so`wh .'
+w
+    ihTs is eref w,aoftser nda you rae meocwle ot eiiesbrdttru ti
+
+    nedru rantiec nntoiicos;d tepy h`osw 'c ofr helt
+
+.
+dTia
+es hthieopltyca dmmcsnao h`sow 'w adn w`hso 'c odshul shwo het i
+rattospppaaerpr
+ of the renlGea lbuiPc seLi.nec  fO uesc,or oryu sogaprm'r moghmit
+s
+dcnma eb dtfe;rfeni for a GIU acntei,erf uyo wdulo esu na utb"oa 
+b
+o
+"x.
+  You sodhul lsao tge yuro reompely if( uoy kowr sa a garmrpore)m ro hof
+coisl
+, ,any ot gsin a yorgci"pth eilidcsmr"a rof the r,apormg fi cas
+Fyereon.sr remo imoaroftnin no sth,i and woh to pyapl nad wolofl the UNG GPL, no/l.twgs>.rc/w
+s
+enei/
+t
+hws
+es.e/:gp<
+u  heT GUN anelGer ucPibl esceLni seod not eprmit apironoritcgn rouy nog
+mpoatr
+ir iyatperrpor prmros.ga  If ruoy pomrgra si a srtbnoiuue lbrayri, uyom
+
+ay seiorncd ti moer fsluue ot iertpm liiknng apyerritopr poisiatlapnc etwhit
+h
+ iarlby.r  fI shit is htwa ouy awtn ot od, use eht UGN resLes ulcebniGer
+lP
+a icneLse aisnted fo tshi Lsenei.c  utB irs,ft leepsa /h/hups/epn.ywglst:t.nto.ohnrmre.t/glgd-
+w<ww>allics
+e-
