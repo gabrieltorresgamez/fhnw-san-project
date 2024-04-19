@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "san-project"
+name = "fhnw-san-project"
 version = "0.1.0"
 description = ""
 authors = ["buesst1 <tobias.buess2001@gmail.com>"]
