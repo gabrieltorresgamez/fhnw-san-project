@@ -1,5 +1,5 @@
 networkx==3.3
 ipykernel==6.29.3
-pandas==2.2.2
+pandas==2.2.1
 matplotlib==3.8.4
 scipy==1.13.0
