@@ -2,6 +2,7 @@ import os
 import re
 import pandas as pd
 import networkx as nx
+from functools import reduce
 
 
 def __remove_special_characters(text):
@@ -171,3 +172,27 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
         )
 
     return reduced_G
+
+
+def global_view(G:nx.Graph, attr:list, self_loops=False):
+    """Contracts nodes which follow the conditions of attr to a single node.
+
+    Params:
+        - G (nx.Graph): graph
+        - attr (list of tuples): example [('node_type', 'Officer'), ('country', 'CHE')] -> all nodes from type Officer with CHE as country will be contracted to one (can be extenden more).
+        - self_loops (bool): contracted nodes will have self loops or not if they had connections originally
+
+    Returns:
+        modified graph, contracted node
+    """
+    
+    nodes = list(G.nodes)
+    for attr_name, attr_value in attr:
+        nodes = reduce(lambda accumulator, current: accumulator + [current[0]], filter(lambda item: item[1]==attr_value, nx.get_node_attributes(G.subgraph(nodes), attr_name).items()), [])
+
+    G = G.copy()
+    target = nodes[0]
+    for node in nodes[1:]:
+        nx.contracted_nodes(G, target, node, self_loops=self_loops, copy=False)
+
+    return G, target
