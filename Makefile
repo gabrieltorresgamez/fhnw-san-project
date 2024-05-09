@@ -1,12 +1,14 @@
-.PHONY: help reqs dl-data
+.PHONY: help reqs-pip reqs-pip-cuda dl-data
 
 ## Show this help message
 help:
 	@echo ""
 	@echo "Usage: make [target]"
 	@echo "---"
-	@echo "reqs"
+	@echo "reqs-pip"
 	@echo "		Install Python Dependencies"
+	@echo "reqs-pip-cuda"
+	@echo "		Install Python Dependencies when cuda is available"
 	@echo "dl-data"
 	@echo "		Download Offshore Leaks Dataset"
 	@echo ""
@@ -14,6 +16,9 @@ help:
 ## Install Python Dependencies
 reqs-pip:
 	pip3 install -r requirements.txt --force-reinstall
+
+reqs-pip-cuda:
+	pip3 install -r requirements-cuda.txt --force-reinstall
 
 ## Download Offshore Leaks Dataset
 dl-data:

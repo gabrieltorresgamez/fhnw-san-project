@@ -1,0 +1,9 @@
+ipykernel==6.29.*
+numpy==1.26.*
+pandas==2.2.*
+matplotlib==3.8.*
+networkx==3.3.*
+
+--extra-index-url https://pypi.nvidia.com 
+cugraph-cu12==24.4.*
+nx-cugraph-cu12==24.4.*
