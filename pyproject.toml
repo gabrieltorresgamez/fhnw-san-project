@@ -4,6 +4,12 @@ version = "0.1.0"
 description = ""
 authors = ["buesst1 <tobias.buess2001@gmail.com>"]
 readme = "README.md"
+package-mode = false
+
+[[tool.poetry.source]]
+name="rapids"
+url="https://pypi.nvidia.com"
+priority="supplemental"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,6 +18,10 @@ ipykernel = "^6.29.3"
 pandas = "^2.2.1"
 matplotlib = "^3.8.3"
 scipy = "^1.12.0"
+nx-cugraph-cu12 = { version = "^24.4.0", source = "rapids" }
+pylibcugraph-cu12 = { version = "^24.4.0", source = "rapids" }
+pylibraft-cu12 = { version = "^24.4.0", source = "rapids" }
+rmm-cu12 = { version = "^24.4.0", source = "rapids" }
 
 
 [build-system]
