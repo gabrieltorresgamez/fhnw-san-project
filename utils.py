@@ -174,17 +174,38 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     return reduced_G
 
 
-def filter_nodes_by_attr(node_attrs, attr_value):
-    """Filter nodes based on a specific attribute value.
+def filter_nodes_by_attributes(G: nx.Graph, attr: list):
+    """ Filters nodes by attributes 
 
     Args:
-        node_attrs (dict): A dictionary containing node attributes.
-        attr_value (str): The attribute value to match.
+        - G (nx.Graph): The input graph.
+        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')] 
+            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
+            -> Attribution value is also allowed to be a list to allow matching multiple values
 
     Returns:
-        set: A set of nodes that match the specified attribute value.
+        set of nodes
     """
-    return set(node for node, value in node_attrs.items() if value == attr_value)
+    
+    # Extract all node attributes once for filtering
+    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
+
+    # Helper function to process attributes
+    def filter_fn(args):
+        attr_name, attr_value = args
+
+        #if attr_value is a list (multiple values allowed)
+        if isinstance(attr_value, list):
+            return set(node for node, value in all_node_attrs[attr_name].items() if value in attr_value)
+
+        return set(node for node, value in all_node_attrs[attr_name].items() if value == attr_value)
+
+    # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
+    with ThreadPool() as pool:
+        results = pool.map(filter_fn, attr)
+
+    # Find the intersection of all filtered sets and return
+    return set.intersection(*results) if results else set()
 
 
 def global_view(G: nx.Graph, attr: list, self_loops=False):
@@ -200,20 +221,8 @@ def global_view(G: nx.Graph, attr: list, self_loops=False):
         tuple: The modified graph and the contracted node.
     """
 
-    # Extract all node attributes once for filtering
-    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
-
-    # Helper function to process attributes
-    def filter_fn(args):
-        attr_name, attr_value = args
-        return filter_nodes_by_attr(all_node_attrs[attr_name], attr_value)
-
-    # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
-    with ThreadPool() as pool:
-        results = pool.map(filter_fn, attr)
-
-    # Find the intersection of all filtered sets
-    nodes = set.intersection(*results) if results else set()
+    # Get all nodes which have specific attributes
+    nodes = filter_nodes_by_attributes(G, attr)
 
     # If no nodes match the criteria, return the original graph and None
     if not nodes:
