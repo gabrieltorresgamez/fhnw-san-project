@@ -22,6 +22,7 @@ nx-cugraph-cu12 = { version = "^24.4.0", source = "rapids" }
 pylibcugraph-cu12 = { version = "^24.4.0", source = "rapids" }
 pylibraft-cu12 = { version = "^24.4.0", source = "rapids" }
 rmm-cu12 = { version = "^24.4.0", source = "rapids" }
+numpy = "^1.26.4"
 
 
 [build-system]
