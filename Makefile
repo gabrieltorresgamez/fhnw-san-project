@@ -12,7 +12,7 @@ help:
 	@echo ""
 
 ## Install Python Dependencies
-reqs:
+reqs-pip:
 	pip3 install -r requirements.txt --force-reinstall
 
 ## Download Offshore Leaks Dataset
