@@ -174,12 +174,11 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     return reduced_G
 
 
-def filter_nodes_by_attr(node_attrs, attr_name, attr_value):
+def filter_nodes_by_attr(node_attrs, attr_value):
     """Filter nodes based on a specific attribute value.
 
     Args:
         node_attrs (dict): A dictionary containing node attributes.
-        attr_name (str): The attribute name to filter by.
         attr_value (str): The attribute value to match.
 
     Returns:
@@ -200,14 +199,14 @@ def global_view(G: nx.Graph, attr: list, self_loops=False):
     Returns:
         tuple: The modified graph and the contracted node.
     """
-    
+
     # Extract all node attributes once for filtering
     all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
 
     # Helper function to process attributes
     def filter_fn(args):
         attr_name, attr_value = args
-        return filter_nodes_by_attr(all_node_attrs[attr_name], attr_name, attr_value)
+        return filter_nodes_by_attr(all_node_attrs[attr_name], attr_value)
 
     # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
     with ThreadPool() as pool:
