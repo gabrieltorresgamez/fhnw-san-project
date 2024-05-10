@@ -2,7 +2,10 @@ import os
 import re
 import pandas as pd
 import networkx as nx
-from multiprocessing.dummy import Pool as ThreadPool
+from concurrent.futures import ProcessPoolExecutor
+import numpy as np
+import random
+
 
 
 def __remove_special_characters(text):
@@ -174,69 +177,142 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     return reduced_G
 
 
-def filter_nodes_by_attributes(G: nx.Graph, attr: list):
-    """ Filters nodes by attributes 
-
+def filter_nodes(G: nx.Graph, query: str):
+    """Filters nodes by SQL-like query.
     Args:
-        - G (nx.Graph): The input graph.
-        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')] 
-            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
-            -> Attribution value is also allowed to be a list to allow matching multiple values
+        - G (nx.Graph): graph
+        - query (str): SQL query
 
     Returns:
-        set of nodes
+        numpy array with node ids
     """
-    
-    # Extract all node attributes once for filtering
-    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
-
-    # Helper function to process attributes
-    def filter_fn(args):
-        attr_name, attr_value = args
-
-        #if attr_value is a list (multiple values allowed)
-        if isinstance(attr_value, list):
-            return set(node for node, value in all_node_attrs[attr_name].items() if value in attr_value)
-
-        return set(node for node, value in all_node_attrs[attr_name].items() if value == attr_value)
-
-    # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
-    with ThreadPool() as pool:
-        results = pool.map(filter_fn, attr)
-
-    # Find the intersection of all filtered sets and return
-    return set.intersection(*results) if results else set()
+    return pd.DataFrame.from_dict(G.nodes, orient='index').query(query).index.to_numpy()
 
 
-def global_view(G: nx.Graph, attr: list, self_loops=False):
-    """Contracts nodes which follow the conditions of attributes to a single node using multithreading.
+def global_view(G: nx.Graph, query: str, self_loops=False):
+    """Contracts nodes which follow the conditions of attributes to a single node using pandas filtering.
 
     Args:
         - G (nx.Graph): The input graph.
-        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')] 
-            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
+        - query (str): SQL-like query string to filter nodes.
         - self_loops (bool): Whether or not the contracted nodes should have self-loops if they had connections originally.
 
     Returns:
         tuple: The modified graph and the contracted node.
     """
-
-    # Get all nodes which have specific attributes
-    nodes = filter_nodes_by_attributes(G, attr)
+    # Get all nodes that match the query
+    nodes = filter_nodes(G, query)
 
     # If no nodes match the criteria, return the original graph and None
-    if not nodes:
+    if not len(nodes):
         return G, None
 
-    # Convert to a list for easier iteration
-    nodes = list(nodes)
-
-    # Make a copy of the graph only if we're actually contracting nodes
+    # Create a copy of the graph to perform modifications
     G = G.copy()
-    target = nodes[0]
+    target = nodes[0]  # The first node serves as the target node for the contraction
 
-    # Contract nodes to the target node
-    for node in nodes[1:]:
-        nx.contracted_nodes(G, target, node, self_loops=self_loops, copy=False)
+    # Get the set of edges related to the contracted nodes
+    contracted_edges = []
+    for node in nodes:
+        for neighbor in G.neighbors(node):
+            if neighbor not in nodes or (self_loops and neighbor == target):
+                contracted_edges.append((target, neighbor))
+    
+    # Remove all contracted nodes except the target
+    G.remove_nodes_from(set(nodes) - {target})
+
+    # Add the consolidated edges to the target node
+    G.add_edges_from(contracted_edges)
 
     return G, target
+
+
+def compute_degree_for_country_explicit(args) -> tuple:
+    """Hilfsfunktion, um den Degree für ein bestimmtes Land zu berechnen.
+
+    Args:
+        - args (tuple): Ein Tupel, das die Graph-Daten (als dict) und den Ländercode enthält.
+
+    Returns:
+        tuple: Ein Tupel mit dem Ländercode und dem berechneten Degree.
+    """
+    G_data, cc = args
+
+    # Den Graphen aus dem übergebenen Dictionary wiederherstellen
+    G = nx.node_link_graph(G_data)
+
+    # Erstelle eine Abfrage für den aktuellen Ländercode
+    query = f"country_codes == '{cc}'"
+
+    # Rufe global_view_pandas mit der gegebenen Abfrage auf
+    G_, target_node = global_view(G, query)
+
+    # Berechne den Degree des Zielknotens
+    degree = nx.degree(G_, target_node) / (G_.number_of_nodes() - 1) if G_.number_of_nodes() > 1 else 0
+
+    # Rückgabe des Ländercodes und des berechneten Werts
+    return (cc, degree)
+
+
+def get_degree_by_country_code_parallel(G: nx.Graph):
+    """Berechnet die Degree-Werte für jeden Ländercode parallel (mit Prozessen).
+
+    Args:
+        - G (nx.Graph): Der Eingabegraph.
+
+    Returns:
+        dict: Ein Wörterbuch mit den Ländercodes und den berechneten Degree-Werten.
+    """
+    # Alle eindeutigen Ländercodes im Graphen finden
+    country_codes = np.unique(list(nx.get_node_attributes(G, "country_codes").values()))
+
+    # Konvertiere den Graphen in ein serialisierbares Format
+    G_data = nx.node_link_data(G)
+
+    # Erstelle eine Liste der Argumente (G_data und Ländercode) für jeden Prozess
+    args_list = [(G_data, cc) for cc in country_codes]
+
+    # Verwende einen ProcessPoolExecutor für die parallele Verarbeitung
+    with ProcessPoolExecutor() as executor:
+        # Führe `compute_degree_for_country_explicit` für jeden Ländercode parallel aus
+        results = executor.map(compute_degree_for_country_explicit, args_list)
+
+    # Sammle die Ergebnisse in einem Wörterbuch
+    return dict(results)
+
+
+def create_random_edges_from(G: nx.Graph):
+    """Creates a random graph by maintaining the same nodes as the input graph 
+    but with randomly selected edges.
+
+    Args:
+        G (nx.Graph): The original input graph.
+
+    Returns:
+        nx.Graph: A new graph with the same nodes but random edges.
+    """
+    # Create a new graph with the same nodes and attributes
+    new_G = nx.Graph()
+    new_G.add_nodes_from([(key, value) for key, value in G.nodes.items()])
+
+    # Determine the number of edges in the original graph
+    num_edges = G.number_of_edges()
+
+    # Convert the nodes to a list to ensure compatibility with random.sample
+    node_list = list(new_G.nodes)
+
+    # Set to track unique edges
+    existing_edges = set()
+
+    # Add random edges until we reach the desired count
+    while len(existing_edges) < num_edges:
+        # Select two random nodes to form an edge
+        u, v = random.sample(node_list, 2)
+        # Ensure the edge isn't already added (in either direction)
+        if (u, v) not in existing_edges and (v, u) not in existing_edges:
+            existing_edges.add((u, v))
+
+    # Add the randomly selected edges to the new graph
+    new_G.add_edges_from(existing_edges)
+
+    return new_G
