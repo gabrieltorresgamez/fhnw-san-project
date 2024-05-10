@@ -2,7 +2,7 @@ import os
 import re
 import pandas as pd
 import networkx as nx
-from functools import reduce
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 def __remove_special_characters(text):
@@ -174,24 +174,68 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     return reduced_G
 
 
-def global_view(G:nx.Graph, attr:list, self_loops=False):
-    """Contracts nodes which follow the conditions of attr to a single node.
+def filter_nodes_by_attributes(G: nx.Graph, attr: list):
+    """ Filters nodes by attributes 
 
-    Params:
-        - G (nx.Graph): graph
-        - attr (list of tuples): example [('node_type', 'Officer'), ('country', 'CHE')] -> all nodes from type Officer with CHE as country will be contracted to one (can be extenden more).
-        - self_loops (bool): contracted nodes will have self loops or not if they had connections originally
+    Args:
+        - G (nx.Graph): The input graph.
+        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')] 
+            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
+            -> Attribution value is also allowed to be a list to allow matching multiple values
 
     Returns:
-        modified graph, contracted node
+        set of nodes
     """
     
-    nodes = list(G.nodes)
-    for attr_name, attr_value in attr:
-        nodes = reduce(lambda accumulator, current: accumulator + [current[0]], filter(lambda item: item[1]==attr_value, nx.get_node_attributes(G.subgraph(nodes), attr_name).items()), [])
+    # Extract all node attributes once for filtering
+    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
 
+    # Helper function to process attributes
+    def filter_fn(args):
+        attr_name, attr_value = args
+
+        #if attr_value is a list (multiple values allowed)
+        if isinstance(attr_value, list):
+            return set(node for node, value in all_node_attrs[attr_name].items() if value in attr_value)
+
+        return set(node for node, value in all_node_attrs[attr_name].items() if value == attr_value)
+
+    # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
+    with ThreadPool() as pool:
+        results = pool.map(filter_fn, attr)
+
+    # Find the intersection of all filtered sets and return
+    return set.intersection(*results) if results else set()
+
+
+def global_view(G: nx.Graph, attr: list, self_loops=False):
+    """Contracts nodes which follow the conditions of attributes to a single node using multithreading.
+
+    Args:
+        - G (nx.Graph): The input graph.
+        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')] 
+            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
+        - self_loops (bool): Whether or not the contracted nodes should have self-loops if they had connections originally.
+
+    Returns:
+        tuple: The modified graph and the contracted node.
+    """
+
+    # Get all nodes which have specific attributes
+    nodes = filter_nodes_by_attributes(G, attr)
+
+    # If no nodes match the criteria, return the original graph and None
+    if not nodes:
+        return G, None
+
+    # Convert to a list for easier iteration
+    nodes = list(nodes)
+
+    # Make a copy of the graph only if we're actually contracting nodes
     G = G.copy()
     target = nodes[0]
+
+    # Contract nodes to the target node
     for node in nodes[1:]:
         nx.contracted_nodes(G, target, node, self_loops=self_loops, copy=False)
 
