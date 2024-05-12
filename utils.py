@@ -189,7 +189,7 @@ def filter_nodes(G: nx.Graph, query: str):
     return pd.DataFrame.from_dict(G.nodes, orient='index').query(query).index.to_numpy()
 
 
-def global_view(G: nx.Graph, query: str, self_loops=False):
+def contract_nodes(G: nx.Graph, query: str, self_loops=False):
     """Contracts nodes which follow the conditions of attributes to a single node using pandas filtering.
 
     Args:
@@ -200,6 +200,7 @@ def global_view(G: nx.Graph, query: str, self_loops=False):
     Returns:
         tuple: The modified graph and the contracted node.
     """
+
     # Get all nodes that match the query
     nodes = filter_nodes(G, query)
 
@@ -211,108 +212,119 @@ def global_view(G: nx.Graph, query: str, self_loops=False):
     G = G.copy()
     target = nodes[0]  # The first node serves as the target node for the contraction
 
-    # Get the set of edges related to the contracted nodes
-    contracted_edges = []
-    for node in nodes:
-        for neighbor in G.neighbors(node):
-            if neighbor not in nodes or (self_loops and neighbor == target):
-                contracted_edges.append((target, neighbor))
-    
-    # Remove all contracted nodes except the target
-    G.remove_nodes_from(set(nodes) - {target})
+    # contract nodes to target
+    for node in nodes[1:]:
+        nx.contracted_nodes(G, target, node, self_loops, copy=False)
 
-    # Add the consolidated edges to the target node
-    G.add_edges_from(contracted_edges)
-
+    #only store node ids which are contracted onto target
+    target_attr = G.nodes[target]
+    target_attr["contraction"] = list(target_attr.get("contraction", {}).keys())
+    nx.set_node_attributes(G, {target:target_attr})
+        
     return G, target
 
 
-def compute_degree_for_country_explicit(args) -> tuple:
-    """Hilfsfunktion, um den Degree für ein bestimmtes Land zu berechnen.
-
-    Args:
-        - args (tuple): Ein Tupel, das die Graph-Daten (als dict) und den Ländercode enthält.
-
-    Returns:
-        tuple: Ein Tupel mit dem Ländercode und dem berechneten Degree.
-    """
-    G_data, cc = args
-
-    # Den Graphen aus dem übergebenen Dictionary wiederherstellen
-    G = nx.node_link_graph(G_data)
-
-    # Erstelle eine Abfrage für den aktuellen Ländercode
-    query = f"country_codes == '{cc}'"
-
-    # Rufe global_view_pandas mit der gegebenen Abfrage auf
-    G_, target_node = global_view(G, query)
-
-    # Berechne den Degree des Zielknotens
-    degree = nx.degree(G_, target_node) / (G_.number_of_nodes() - 1) if G_.number_of_nodes() > 1 else 0
-
-    # Rückgabe des Ländercodes und des berechneten Werts
-    return (cc, degree)
-
-
-def get_degree_by_country_code_parallel(G: nx.Graph):
-    """Berechnet die Degree-Werte für jeden Ländercode parallel (mit Prozessen).
-
-    Args:
-        - G (nx.Graph): Der Eingabegraph.
+def global_view(G: nx.Graph, by:str, self_loops=False):
+    """Create a global view of the network grouping by a certain attribute.
+    
+    Params:
+        - G (nx.Graph): networkx Grap
+        - by (str): node attribute to groupe by
+        - self_loops (bool): self loops allowed or not
 
     Returns:
-        dict: Ein Wörterbuch mit den Ländercodes und den berechneten Degree-Werten.
+        modified graph, mapper which maps the group to its node
     """
-    # Alle eindeutigen Ländercodes im Graphen finden
-    country_codes = np.unique(list(nx.get_node_attributes(G, "country_codes").values()))
 
-    # Konvertiere den Graphen in ein serialisierbares Format
-    G_data = nx.node_link_data(G)
+    G = nx.MultiGraph(G.copy())
 
-    # Erstelle eine Liste der Argumente (G_data und Ländercode) für jeden Prozess
-    args_list = [(G_data, cc) for cc in country_codes]
+    #iterate over the unique expressions of the 'by' attribute
+    mapper = {}
+    for by_attr in np.unique(list(nx.get_node_attributes(G, by).values())):
+        G, target_node = contract_nodes(G, f"{by} == '{by_attr}'", self_loops)
+        mapper[by_attr] = target_node
 
-    # Verwende einen ProcessPoolExecutor für die parallele Verarbeitung
-    with ProcessPoolExecutor() as executor:
-        # Führe `compute_degree_for_country_explicit` für jeden Ländercode parallel aus
-        results = executor.map(compute_degree_for_country_explicit, args_list)
-
-    # Sammle die Ergebnisse in einem Wörterbuch
-    return dict(results)
+    return G, mapper
 
 
-def create_random_edges_from(G: nx.Graph):
-    """Creates a random graph by maintaining the same nodes as the input graph 
-    but with randomly selected edges.
+def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
+    """
+    Convert a MultiGraph to a Graph, merging multiple edges between the same nodes into a single edge.
+    The weight of the edge in the resulting graph represents the number of multiple edges in the original MultiGraph.
 
-    Args:
-        G (nx.Graph): The original input graph.
+    Parameters:
+    G (nx.MultiGraph): The input MultiGraph to be converted.
 
     Returns:
-        nx.Graph: A new graph with the same nodes but random edges.
+    nx.Graph: A Graph where each pair of nodes is connected by a single edge with a weight representing
+              the count of original edges between those nodes in the MultiGraph.
     """
-    # Create a new graph with the same nodes and attributes
-    new_G = nx.Graph()
-    new_G.add_nodes_from([(key, value) for key, value in G.nodes.items()])
+    # Create a new simple graph to hold the converted structure
+    G_new = nx.Graph()
+    
+    # Iterate over each edge in the MultiGraph
+    for u, v in G.edges():
+        # If the edge already exists in the new graph, increment its weight
+        if G_new.has_edge(u, v):
+            G_new[u][v]['weight'] += 1
+            continue
+        
+        # Add a new edge with initial weight 1 if it does not exist
+        G_new.add_edge(u, v, weight=1)
 
-    # Determine the number of edges in the original graph
-    num_edges = G.number_of_edges()
+    # Add nodes not added yet
+    G_new.add_nodes_from(np.setdiff1d(G.nodes, G_new.nodes))
 
-    # Convert the nodes to a list to ensure compatibility with random.sample
-    node_list = list(new_G.nodes)
+    # Copy all node attributes from the original MultiGraph to the new Graph
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+    
+    return G_new
 
-    # Set to track unique edges
-    existing_edges = set()
 
-    # Add random edges until we reach the desired count
-    while len(existing_edges) < num_edges:
-        # Select two random nodes to form an edge
-        u, v = random.sample(node_list, 2)
-        # Ensure the edge isn't already added (in either direction)
-        if (u, v) not in existing_edges and (v, u) not in existing_edges:
-            existing_edges.add((u, v))
+def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
+    """ Randomly swaps the edges of a graph G while preserving its nodes.
 
-    # Add the randomly selected edges to the new graph
-    new_G.add_edges_from(existing_edges)
+    This function takes a graph G, and randomly rearranges its edges to create a new graph with the same nodes but different edge connections. It ensures that isolated nodes (nodes without edges) are also preserved in the new graph. Optionally, a seed for the random number generator can be provided to make the results reproducible.
 
-    return new_G
+    Parameters:
+    G (nx.Graph): The original graph whose edges are to be swapped.
+    seed (int, optional): Seed for the random number generator to ensure reproducibility.
+
+    Returns:
+    nx.Graph: A new graph with the same nodes as G but with edges randomly swapped.
+    """
+
+    # Convert the graph's edges to a pandas DataFrame.
+    edgelist = nx.to_pandas_edgelist(G)
+
+    # Identify nodes that are not connected by any edge and add them to the DataFrame.
+    isolated_nodes = np.setdiff1d(list(G.nodes), np.unique(list(edgelist.source.unique()) + list(edgelist.target.unique())))
+    isolated_nodes_df = pd.DataFrame({"source": isolated_nodes})
+    edgelist = pd.concat([edgelist, isolated_nodes_df], ignore_index=True)
+
+    # Shuffle the 'target' and other attribute columns (if any) randomly.
+    while True:
+        edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
+
+        #shuffle until no parallel edges
+        if edgelist[["source", "target"]].duplicated().sum() == 0:
+            break
+
+    # Drop rows with NaN values which occur if a 'source' node was initially added as isolated.
+    edgelist = edgelist.dropna()
+
+    # Shuffle the attributes (like weights) again to avoid patterns from the first shuffle.
+    if seed is not None:
+        seed += 1  # Increment seed to get a new shuffle pattern
+    edgelist.iloc[:, 2:] = edgelist.iloc[:, 2:].sample(frac=1, random_state=seed).values
+
+    # Create a new graph from the shuffled edge list.
+    G_new = nx.from_pandas_edgelist(edgelist, edge_attr=list(edgelist.columns[2:]))
+
+    # Add isolated nodes back to the new graph.
+    G_new.add_nodes_from(isolated_nodes)
+
+    # Preserve the node attributes from the original graph.
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+
+    return G_new
