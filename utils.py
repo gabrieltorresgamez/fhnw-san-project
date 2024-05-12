@@ -2,7 +2,10 @@ import os
 import re
 import pandas as pd
 import networkx as nx
-from multiprocessing.dummy import Pool as ThreadPool
+from concurrent.futures import ProcessPoolExecutor
+import numpy as np
+import random
+
 
 
 def __remove_special_characters(text):
@@ -146,70 +149,154 @@ def is_officer_from_country_name(G, node_id, country_name):
     node = G.nodes[node_id]
     return node["node_type"] == "Officer" and country_name in node["countries"]
 
-
-def filter_nodes_by_attributes(G: nx.Graph, attr: list):
-    """Filters nodes by attributes
-
+def filter_nodes(G: nx.Graph, query: str):
+    """Filters nodes by SQL-like query.
     Args:
-        - G (nx.Graph): The input graph.
-        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')]
-            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
-            -> Attribution value is also allowed to be a list to allow matching multiple values
+        - G (nx.Graph): graph
+        - query (str): SQL query
 
     Returns:
-        set of nodes
+        numpy array with node ids
     """
-
-    # Extract all node attributes once for filtering
-    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
-
-    # Helper function to process attributes
-    def filter_fn(args):
-        attr_name, attr_value = args
-
-        # if attr_value is a list (multiple values allowed)
-        if isinstance(attr_value, list):
-            return {node for node, value in all_node_attrs[attr_name].items() if value in attr_value}
-
-        return {node for node, value in all_node_attrs[attr_name].items() if value == attr_value}
-
-    # Use a ThreadPool instead of a Multiprocessing Pool to handle parallel filtering
-    with ThreadPool() as pool:
-        results = pool.map(filter_fn, attr)
-
-    # Find the intersection of all filtered sets and return
-    return set.intersection(*results) if results else set()
+    return pd.DataFrame.from_dict(G.nodes, orient='index').query(query).index.to_numpy()
 
 
-def global_view(G: nx.Graph, attr: list, self_loops=False):
-    """Contracts nodes which follow the conditions of attributes to a single node using multithreading.
+def contract_nodes(G: nx.Graph, query: str, self_loops=False):
+    """Contracts nodes which follow the conditions of attributes to a single node using pandas filtering.
 
     Args:
         - G (nx.Graph): The input graph.
-        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')]
-            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
+        - query (str): SQL-like query string to filter nodes.
         - self_loops (bool): Whether or not the contracted nodes should have self-loops if they had connections originally.
 
     Returns:
         tuple: The modified graph and the contracted node.
     """
 
-    # Get all nodes which have specific attributes
-    nodes = filter_nodes_by_attributes(G, attr)
+    # Get all nodes that match the query
+    nodes = filter_nodes(G, query)
 
     # If no nodes match the criteria, return the original graph and None
-    if not nodes:
+    if not len(nodes):
         return G, None
 
-    # Convert to a list for easier iteration
-    nodes = list(nodes)
-
-    # Make a copy of the graph only if we're actually contracting nodes
+    # Create a copy of the graph to perform modifications
     G = G.copy()
-    target = nodes[0]
+    target = nodes[0]  # The first node serves as the target node for the contraction
 
-    # Contract nodes to the target node
+    # contract nodes to target
     for node in nodes[1:]:
-        nx.contracted_nodes(G, target, node, self_loops=self_loops, copy=False)
+        nx.contracted_nodes(G, target, node, self_loops, copy=False)
 
+    #only store node ids which are contracted onto target
+    target_attr = G.nodes[target]
+    target_attr["contraction"] = list(target_attr.get("contraction", {}).keys())
+    nx.set_node_attributes(G, {target:target_attr})
+        
     return G, target
+
+
+def global_view(G: nx.Graph, by:str, self_loops=False):
+    """Create a global view of the network grouping by a certain attribute.
+    
+    Params:
+        - G (nx.Graph): networkx Grap
+        - by (str): node attribute to groupe by
+        - self_loops (bool): self loops allowed or not
+
+    Returns:
+        modified graph, mapper which maps the group to its node
+    """
+
+    G = nx.MultiGraph(G.copy())
+
+    #iterate over the unique expressions of the 'by' attribute
+    mapper = {}
+    for by_attr in np.unique(list(nx.get_node_attributes(G, by).values())):
+        G, target_node = contract_nodes(G, f"{by} == '{by_attr}'", self_loops)
+        mapper[by_attr] = target_node
+
+    return G, mapper
+
+
+def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
+    """
+    Convert a MultiGraph to a Graph, merging multiple edges between the same nodes into a single edge.
+    The weight of the edge in the resulting graph represents the number of multiple edges in the original MultiGraph.
+
+    Parameters:
+    G (nx.MultiGraph): The input MultiGraph to be converted.
+
+    Returns:
+    nx.Graph: A Graph where each pair of nodes is connected by a single edge with a weight representing
+              the count of original edges between those nodes in the MultiGraph.
+    """
+    # Create a new simple graph to hold the converted structure
+    G_new = nx.Graph()
+    
+    # Iterate over each edge in the MultiGraph
+    for u, v in G.edges():
+        # If the edge already exists in the new graph, increment its weight
+        if G_new.has_edge(u, v):
+            G_new[u][v]['weight'] += 1
+            continue
+        
+        # Add a new edge with initial weight 1 if it does not exist
+        G_new.add_edge(u, v, weight=1)
+
+    # Add nodes not added yet
+    G_new.add_nodes_from(np.setdiff1d(G.nodes, G_new.nodes))
+
+    # Copy all node attributes from the original MultiGraph to the new Graph
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+    
+    return G_new
+
+
+def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
+    """ Randomly swaps the edges of a graph G while preserving its nodes.
+
+    This function takes a graph G, and randomly rearranges its edges to create a new graph with the same nodes but different edge connections. It ensures that isolated nodes (nodes without edges) are also preserved in the new graph. Optionally, a seed for the random number generator can be provided to make the results reproducible.
+
+    Parameters:
+    G (nx.Graph): The original graph whose edges are to be swapped.
+    seed (int, optional): Seed for the random number generator to ensure reproducibility.
+
+    Returns:
+    nx.Graph: A new graph with the same nodes as G but with edges randomly swapped.
+    """
+
+    # Convert the graph's edges to a pandas DataFrame.
+    edgelist = nx.to_pandas_edgelist(G)
+
+    # Identify nodes that are not connected by any edge and add them to the DataFrame.
+    isolated_nodes = np.setdiff1d(list(G.nodes), np.unique(list(edgelist.source.unique()) + list(edgelist.target.unique())))
+    isolated_nodes_df = pd.DataFrame({"source": isolated_nodes})
+    edgelist = pd.concat([edgelist, isolated_nodes_df], ignore_index=True)
+
+    # Shuffle the 'target' and other attribute columns (if any) randomly.
+    while True:
+        edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
+
+        #shuffle until no parallel edges
+        if edgelist[["source", "target"]].duplicated().sum() == 0:
+            break
+
+    # Drop rows with NaN values which occur if a 'source' node was initially added as isolated.
+    edgelist = edgelist.dropna()
+
+    # Shuffle the attributes (like weights) again to avoid patterns from the first shuffle.
+    if seed is not None:
+        seed += 1  # Increment seed to get a new shuffle pattern
+    edgelist.iloc[:, 2:] = edgelist.iloc[:, 2:].sample(frac=1, random_state=seed).values
+
+    # Create a new graph from the shuffled edge list.
+    G_new = nx.from_pandas_edgelist(edgelist, edge_attr=list(edgelist.columns[2:]))
+
+    # Add isolated nodes back to the new graph.
+    G_new.add_nodes_from(isolated_nodes)
+
+    # Preserve the node attributes from the original graph.
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+
+    return G_new
