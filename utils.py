@@ -7,7 +7,6 @@ import numpy as np
 import random
 
 
-
 def __remove_special_characters(text):
     # Stellen Sie sicher, dass der Text ein String ist
     return re.sub(r"[^\w\s;,.]", "", text) if isinstance(text, str) else text
@@ -149,6 +148,7 @@ def is_officer_from_country_name(G, node_id, country_name):
     node = G.nodes[node_id]
     return node["node_type"] == "Officer" and country_name in node["countries"]
 
+
 def filter_nodes(G: nx.Graph, query: str):
     """Filters nodes by SQL-like query.
     Args:
@@ -158,7 +158,7 @@ def filter_nodes(G: nx.Graph, query: str):
     Returns:
         numpy array with node ids
     """
-    return pd.DataFrame.from_dict(G.nodes, orient='index').query(query).index.to_numpy()
+    return pd.DataFrame.from_dict(G.nodes, orient="index").query(query).index.to_numpy()
 
 
 def contract_nodes(G: nx.Graph, query: str, self_loops=False):
@@ -188,17 +188,17 @@ def contract_nodes(G: nx.Graph, query: str, self_loops=False):
     for node in nodes[1:]:
         nx.contracted_nodes(G, target, node, self_loops, copy=False)
 
-    #only store node ids which are contracted onto target
+    # only store node ids which are contracted onto target
     target_attr = G.nodes[target]
     target_attr["contraction"] = list(target_attr.get("contraction", {}).keys())
-    nx.set_node_attributes(G, {target:target_attr})
-        
+    nx.set_node_attributes(G, {target: target_attr})
+
     return G, target
 
 
-def global_view(G: nx.Graph, by:str, self_loops=False):
+def global_view(G: nx.Graph, by: str, self_loops=False):
     """Create a global view of the network grouping by a certain attribute.
-    
+
     Params:
         - G (nx.Graph): networkx Grap
         - by (str): node attribute to groupe by
@@ -210,7 +210,7 @@ def global_view(G: nx.Graph, by:str, self_loops=False):
 
     G = nx.MultiGraph(G.copy())
 
-    #iterate over the unique expressions of the 'by' attribute
+    # iterate over the unique expressions of the 'by' attribute
     mapper = {}
     for by_attr in np.unique(list(nx.get_node_attributes(G, by).values())):
         G, target_node = contract_nodes(G, f"{by} == '{by_attr}'", self_loops)
@@ -233,14 +233,14 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
     """
     # Create a new simple graph to hold the converted structure
     G_new = nx.Graph()
-    
+
     # Iterate over each edge in the MultiGraph
     for u, v in G.edges():
         # If the edge already exists in the new graph, increment its weight
         if G_new.has_edge(u, v):
-            G_new[u][v]['weight'] += 1
+            G_new[u][v]["weight"] += 1
             continue
-        
+
         # Add a new edge with initial weight 1 if it does not exist
         G_new.add_edge(u, v, weight=1)
 
@@ -249,12 +249,12 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
 
     # Copy all node attributes from the original MultiGraph to the new Graph
     nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
-    
+
     return G_new
 
 
 def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
-    """ Randomly swaps the edges of a graph G while preserving its nodes.
+    """Randomly swaps the edges of a graph G while preserving its nodes.
 
     This function takes a graph G, and randomly rearranges its edges to create a new graph with the same nodes but different edge connections. It ensures that isolated nodes (nodes without edges) are also preserved in the new graph. Optionally, a seed for the random number generator can be provided to make the results reproducible.
 
@@ -270,7 +270,9 @@ def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
     edgelist = nx.to_pandas_edgelist(G)
 
     # Identify nodes that are not connected by any edge and add them to the DataFrame.
-    isolated_nodes = np.setdiff1d(list(G.nodes), np.unique(list(edgelist.source.unique()) + list(edgelist.target.unique())))
+    isolated_nodes = np.setdiff1d(
+        list(G.nodes), np.unique(list(edgelist.source.unique()) + list(edgelist.target.unique()))
+    )
     isolated_nodes_df = pd.DataFrame({"source": isolated_nodes})
     edgelist = pd.concat([edgelist, isolated_nodes_df], ignore_index=True)
 
@@ -278,7 +280,7 @@ def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
     while True:
         edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
 
-        #shuffle until no parallel edges
+        # shuffle until no parallel edges
         if edgelist[["source", "target"]].duplicated().sum() == 0:
             break
 
