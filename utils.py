@@ -291,7 +291,7 @@ def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
     seed (int, optional): Seed for the random number generator to ensure reproducibility.
 
     Returns:
-    nx.Graph: A new graph with the same nodes as G but with edges randomly swapped.
+    nx.MultiGraph: A new graph with the same nodes as G but with edges randomly swapped.
     """
 
     # Convert the graph's edges to a pandas DataFrame.
@@ -303,12 +303,7 @@ def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
     edgelist = pd.concat([edgelist, isolated_nodes_df], ignore_index=True)
 
     # Shuffle the 'target' and other attribute columns (if any) randomly.
-    while True:
-        edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
-
-        #shuffle until no parallel edges
-        if edgelist[["source", "target"]].duplicated().sum() == 0:
-            break
+    edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
 
     # Drop rows with NaN values which occur if a 'source' node was initially added as isolated.
     edgelist = edgelist.dropna()
@@ -319,7 +314,7 @@ def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
     edgelist.iloc[:, 2:] = edgelist.iloc[:, 2:].sample(frac=1, random_state=seed).values
 
     # Create a new graph from the shuffled edge list.
-    G_new = nx.from_pandas_edgelist(edgelist, edge_attr=list(edgelist.columns[2:]))
+    G_new = nx.from_pandas_edgelist(edgelist, edge_attr=list(edgelist.columns[2:]), create_using=nx.MultiGraph)
 
     # Add isolated nodes back to the new graph.
     G_new.add_nodes_from(isolated_nodes)
