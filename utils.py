@@ -281,45 +281,37 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
     return G_new
 
 
-def permute_graph(G: nx.Graph, seed: int = None) -> nx.Graph:
-    """ Randomly swaps the edges of a graph G while preserving its nodes.
-
-    This function takes a graph G, and randomly rearranges its edges to create a new graph with the same nodes but different edge connections. It ensures that isolated nodes (nodes without edges) are also preserved in the new graph. Optionally, a seed for the random number generator can be provided to make the results reproducible.
+def permute_graph_QAP(G: nx.Graph) -> nx.Graph:
+    """
+    Permute the nodes of the given graph G by random row and column swaps of its adjacency matrix,
+    and return a new graph with the same nodes but with the permuted structure.
 
     Parameters:
-    G (nx.Graph): The original graph whose edges are to be swapped.
-    seed (int, optional): Seed for the random number generator to ensure reproducibility.
+    G (nx.Graph): The input graph to be permuted.
 
     Returns:
-    nx.MultiGraph: A new graph with the same nodes as G but with edges randomly swapped.
+    nx.Graph: A new graph with the permuted adjacency matrix, preserving the original node attributes.
     """
+    # Get the list of nodes in the graph
+    nodelist = list(G.nodes())
 
-    # Convert the graph's edges to a pandas DataFrame.
-    edgelist = nx.to_pandas_edgelist(G)
+    # Get the adjacency matrix from the graph
+    adj_matrix = nx.adjacency_matrix(G, nodelist).todense()
 
-    # Identify nodes that are not connected by any edge and add them to the DataFrame.
-    isolated_nodes = np.setdiff1d(list(G.nodes), np.unique(list(edgelist.source.unique()) + list(edgelist.target.unique())))
-    isolated_nodes_df = pd.DataFrame({"source": isolated_nodes})
-    edgelist = pd.concat([edgelist, isolated_nodes_df], ignore_index=True)
+    # Define random row and column permutations
+    row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
+    col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
 
-    # Shuffle the 'target' and other attribute columns (if any) randomly.
-    edgelist.iloc[:, 1:] = edgelist.iloc[:, 1:].sample(frac=1, random_state=seed).values
+    # Apply the permutations to the adjacency matrix
+    adj_matrix = adj_matrix[row_permutation, :][:, col_permutation]
 
-    # Drop rows with NaN values which occur if a 'source' node was initially added as isolated.
-    edgelist = edgelist.dropna()
+    # Create a new graph from the permuted adjacency matrix
+    new_G = nx.from_numpy_array(adj_matrix)
 
-    # Shuffle the attributes (like weights) again to avoid patterns from the first shuffle.
-    if seed is not None:
-        seed += 1  # Increment seed to get a new shuffle pattern
-    edgelist.iloc[:, 2:] = edgelist.iloc[:, 2:].sample(frac=1, random_state=seed).values
+    # Relabel the nodes so that the original node IDs are used
+    nx.relabel_nodes(new_G, lambda i: nodelist[i], copy=False)
 
-    # Create a new graph from the shuffled edge list.
-    G_new = nx.from_pandas_edgelist(edgelist, edge_attr=list(edgelist.columns[2:]), create_using=nx.MultiGraph)
+    # Preserve the node attributes from the original graph
+    nx.set_node_attributes(new_G, dict(G.nodes(data=True)))
 
-    # Add isolated nodes back to the new graph.
-    G_new.add_nodes_from(isolated_nodes)
-
-    # Preserve the node attributes from the original graph.
-    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
-
-    return G_new
+    return new_G
