@@ -4,7 +4,6 @@ import pandas as pd
 import networkx as nx
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
-import random
 
 
 
@@ -263,14 +262,17 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
     G_new = nx.Graph()
     
     # Iterate over each edge in the MultiGraph
-    for u, v in G.edges():
+    for u, v, data in G.edges(data=True):
+        #get weight of edge if exists otherwise use default of 1
+        edge_weight = data.get("weight", 1)
+
         # If the edge already exists in the new graph, increment its weight
         if G_new.has_edge(u, v):
-            G_new[u][v]['weight'] += 1
+            G_new[u][v]['weight'] += edge_weight
             continue
         
-        # Add a new edge with initial weight 1 if it does not exist
-        G_new.add_edge(u, v, weight=1)
+        # Add a new edge with initial weight if it does not exist
+        G_new.add_edge(u, v, weight=edge_weight)
 
     # Add nodes not added yet
     G_new.add_nodes_from(np.setdiff1d(G.nodes, G_new.nodes))
@@ -281,13 +283,14 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
     return G_new
 
 
-def permute_graph_QAP(G: nx.Graph) -> nx.Graph:
+def permute_graph_QAP(G: nx.Graph, self_loops=False) -> nx.Graph:
     """
     Permute the nodes of the given graph G by random row and column swaps of its adjacency matrix,
     and return a new graph with the same nodes but with the permuted structure.
 
     Parameters:
     G (nx.Graph): The input graph to be permuted.
+    self_loops (bool): True -> self loops allowed, False -> weights of self loops are set to zero
 
     Returns:
     nx.Graph: A new graph with the permuted adjacency matrix, preserving the original node attributes.
@@ -304,6 +307,10 @@ def permute_graph_QAP(G: nx.Graph) -> nx.Graph:
 
     # Apply the permutations to the adjacency matrix
     adj_matrix = adj_matrix[row_permutation, :][:, col_permutation]
+
+    # if self loops disabled -> set diag to zero
+    if not self_loops:
+        np.fill_diagonal(adj_matrix, 0)
 
     # Create a new graph from the permuted adjacency matrix
     new_G = nx.from_numpy_array(adj_matrix)
