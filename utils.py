@@ -1,10 +1,13 @@
 import os
 import re
+import random
+import numpy as np
 import pandas as pd
 import networkx as nx
+import matplotlib.pyplot as plt
+from tqdm.notebook import tqdm
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
-
 
 
 def __remove_special_characters(text):
@@ -66,12 +69,16 @@ def get_graph(GRAPH_PATH, PAPERS="Pandora"):
     # filter all nodes and relationships that are not from the Pandora Papers
     addressNodes = addressNodes[addressNodes["sourceID"].str.contains(PAPERS)]
     entityNodes = entityNodes[entityNodes["sourceID"].str.contains(PAPERS)]
-    intermediaryNodes = intermediaryNodes[intermediaryNodes["sourceID"].str.contains(PAPERS)]
+    intermediaryNodes = intermediaryNodes[
+        intermediaryNodes["sourceID"].str.contains(PAPERS)
+    ]
     officerNodes = officerNodes[officerNodes["sourceID"].str.contains(PAPERS)]
     nodes_others = nodes_others[nodes_others["sourceID"].str.contains(PAPERS)]
 
     # alternatively, get all nodeIDs from all filtered nodes and remove relationships with nodeIDs that are not in this list
-    allNodeIDs = pd.concat([addressNodes, entityNodes, intermediaryNodes, officerNodes, nodes_others]).index
+    allNodeIDs = pd.concat(
+        [addressNodes, entityNodes, intermediaryNodes, officerNodes, nodes_others]
+    ).index
     relationships = relationships[
         relationships.index.get_level_values(0).isin(allNodeIDs)
         & relationships.index.get_level_values(1).isin(allNodeIDs)
@@ -85,7 +92,10 @@ def get_graph(GRAPH_PATH, PAPERS="Pandora"):
     G.add_nodes_from(list(officerNodes.to_dict("index").items()), bipartite=3)
     G.add_nodes_from(list(nodes_others.to_dict("index").items()), bipartite=4)
     G.add_edges_from(
-        [(*relationships.index[i], value) for i, value in enumerate(relationships.to_dict(orient="records"))]
+        [
+            (*relationships.index[i], value)
+            for i, value in enumerate(relationships.to_dict(orient="records"))
+        ]
     )
 
     # remove all the dataframes
@@ -123,7 +133,13 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     for component in nx.connected_components(G.to_undirected()):
         if country_name in list(
             nx.get_node_attributes(
-                G.subgraph([node for node in component if G.nodes[node]["node_type"] == "Address"]),
+                G.subgraph(
+                    [
+                        node
+                        for node in component
+                        if G.nodes[node]["node_type"] == "Address"
+                    ]
+                ),
                 "countries",
             ).values()
         ):
@@ -143,6 +159,12 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     return reduced_G
 
 
+def is_officer_from_country_name(G, node_id, country_name):
+    """Check if a node is an officer from a specific country."""
+    node = G.nodes[node_id]
+    return node["node_type"] == "Officer" and country_name in node["countries"]
+
+
 def filter_nodes(G: nx.Graph, query: str):
     """Filters nodes by SQL-like query.
     Args:
@@ -151,40 +173,7 @@ def filter_nodes(G: nx.Graph, query: str):
     Returns:
         numpy array with node ids
     """
-    return pd.DataFrame.from_dict(G.nodes, orient='index').query(query).index.to_numpy()
-
-  
-def is_officer_from_country_name(G, node_id, country_name):
-    """Check if a node is an officer from a specific country."""
-    node = G.nodes[node_id]
-    return node["node_type"] == "Officer" and country_name in node["countries"]
-
-
-def filter_nodes_by_attributes(G: nx.Graph, attr: list):
-    """Filters nodes by attributes
-
-    Args:
-        - G (nx.Graph): The input graph.
-        - attr (list of tuples): Example [('node_type', 'Officer'), ('country', 'CHE')]
-            -> All nodes of type 'Officer' with 'CHE' as the country will be contracted into one (can be extended further).
-            -> Attribution value is also allowed to be a list to allow matching multiple values
-            
-    Returns:
-        numpy array with node ids
-    """
-
-    # Extract all node attributes once for filtering
-    all_node_attrs = {attr_name: nx.get_node_attributes(G, attr_name) for attr_name, _ in attr}
-
-    # Helper function to process attributes
-    def filter_fn(args):
-        attr_name, attr_value = args
-
-        # if attr_value is a list (multiple values allowed)
-        if isinstance(attr_value, list):
-            return {node for node, value in all_node_attrs[attr_name].items() if value in attr_value}
-
-        return {node for node, value in all_node_attrs[attr_name].items() if value == attr_value}
+    return pd.DataFrame.from_dict(G.nodes, orient="index").query(query).index.to_numpy()
 
 
 def contract_nodes(G: nx.Graph, query: str, self_loops=False):
@@ -214,17 +203,187 @@ def contract_nodes(G: nx.Graph, query: str, self_loops=False):
     for node in nodes[1:]:
         nx.contracted_nodes(G, target, node, self_loops, copy=False)
 
-    #only store node ids which are contracted onto target
+    # only store node ids which are contracted onto target
     target_attr = G.nodes[target]
     target_attr["contraction"] = list(target_attr.get("contraction", {}).keys())
-    nx.set_node_attributes(G, {target:target_attr})
-        
+    nx.set_node_attributes(G, {target: target_attr})
+
     return G, target
 
 
-def global_view(G: nx.Graph, by:str, self_loops=False):
+def merge_duplicate_nodes(graph, exclude_attributes=["label"]):
+    """
+    Removes duplicate edges from a graph. An edge is considered a duplicate if it has
+    the same source, target, and 'link' attribute as another edge. Only the first occurrence
+    of a duplicate edge is retained.
+
+    Parameters:
+        graph (networkx.Graph): The graph from which duplicate edges are to be removed.
+                                 This graph is not modified; a new graph is returned.
+
+    Returns:
+        networkx.Graph: A new graph instance that is a copy of the original but with all
+                        duplicate edges removed. This ensures that each edge is unique
+                        based on the combination of source, target, and 'link' attribute.
+
+    Note:
+        This function handles graphs with multiple edges between the same nodes by comparing
+        the 'link' attribute. It assumes that this attribute exists for all edges. If it does
+        not, the function may behave unexpectedly.
+    """
+
+    # Convert graph nodes to DataFrame and copy the graph.
+    updated_graph = graph.copy()
+    node_attributes = pd.DataFrame.from_dict(
+        dict(updated_graph.nodes(data=True)), orient="index"
+    )
+
+    # Normalize attribute values for consistent comparison.
+    replace_dict = {
+        "_": " ",
+        "-": " ",
+        "ä": "ae",
+        "ö": "oe",
+        "ü": "ue",
+        "ß": "ss",
+    }
+    node_attributes = node_attributes.map(
+        lambda x: (
+            "".join(replace_dict.get(c, c) for c in x.lower())
+            if isinstance(x, str)
+            else x
+        )
+    )
+
+    # Group nodes, excluding specified attributes for comparison.
+    relevant_attributes = node_attributes.columns.difference(exclude_attributes)
+    grouped_nodes = node_attributes.groupby(list(relevant_attributes), dropna=False)
+
+    # Merge nodes with identical attributes.
+    for _, nodes_in_group in tqdm(
+        grouped_nodes, desc="Merging duplicate nodes", total=len(grouped_nodes)
+    ):
+        if len(nodes_in_group) > 1:
+            primary_node = nodes_in_group.index[0]
+            for node_id in nodes_in_group.index[1:]:
+                nx.contracted_nodes(
+                    updated_graph, primary_node, node_id, self_loops=False, copy=False
+                )
+
+    return updated_graph
+
+
+def remove_duplicate_edges(graph):
+    """
+    Removes duplicate edges from a graph based on a specific attribute within each edge.
+
+    Parameters:
+        graph (networkx.Graph): The graph from which duplicate edges will be removed.
+
+    Returns:
+        networkx.Graph: A new graph with duplicate edges removed based on the 'link' attribute.
+
+    Notes:
+        This function identifies duplicates by creating a unique signature for each edge based
+        on the 'source', 'target', and 'link' attribute. It collects all unique edges and removes
+        any additional edges that have the same signature.
+    """
+    updated_graph = graph.copy()
+    existing_edges = set()
+    redundant_edges = []
+
+    # Iterate over all edges and identify duplicates.
+    for source, target, key, data in tqdm(
+        updated_graph.edges(data=True, keys=True), desc="Removing duplicate edges"
+    ):
+        edge_signature = (source, target, data["link"])
+
+        # Check and mark duplicate edges.
+        if edge_signature in existing_edges:
+            redundant_edges.append((source, target, key))
+        else:
+            existing_edges.add(edge_signature)
+
+    # Remove identified duplicate edges.
+    for source, target, key in redundant_edges:
+        updated_graph.remove_edge(source, target, key)
+
+    return updated_graph
+
+
+def get_swiss_officer_entities_subgraph(G):
+    swiss_officers = filter_nodes(
+        G, query="countries == 'Switzerland' and node_type == 'Officer'"
+    )
+    all_entities = filter_nodes(G, query="node_type == 'Entity'")
+
+    swiss_officers_entities_subgraph_ = G.subgraph(
+        set(swiss_officers) | set(all_entities)
+    )
+    filtered_edges_u_v_k = [
+        (u, v, k)
+        for u, v, k in swiss_officers_entities_subgraph_.edges(keys=True)
+        if u in swiss_officers and v in all_entities
+    ]
+    swiss_officers_entities_subgraph = G.edge_subgraph(filtered_edges_u_v_k)
+
+    return swiss_officers_entities_subgraph, swiss_officers, all_entities
+
+
+def plot_ego_with_labels(G, node, color_map, ego_radius=1, plot_type_circular=True):
+    ego = nx.ego_graph(G, node, radius=ego_radius, undirected=True)
+    pos = (
+        nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego, k=0.5)
+    )
+    colors = [color_map[G.nodes[n]["node_type"]] for n in ego.nodes]
+    labels = {
+        n: (
+            G.nodes[n]["name"]
+            if G.nodes[n]["node_type"] != "Address"
+            else G.nodes[n]["address"].split(",")[0]
+        )
+        for n in ego.nodes
+    }
+
+    edge_labels = {}
+    for u, v, d in ego.edges(data=True):
+        key = (u, v)
+        if key not in edge_labels:
+            edge_labels[key] = []
+        edge_labels[key].append(d["link"])
+
+    combined_edge_labels = {k: "\n".join(v) for k, v in edge_labels.items()}
+
+    nx.draw(
+        ego,
+        pos,
+        with_labels=True,
+        node_color=colors,
+        labels=labels,
+        font_size=plt.rcParams["font.size"],
+        edge_color="#D3D3D3",
+    )
+    nx.draw_networkx_edge_labels(
+        ego,
+        pos,
+        edge_labels=combined_edge_labels,
+        font_color="red",
+        font_size=plt.rcParams["font.size"] - 1,
+    )
+
+    plt.title(f"Ego graph of {labels[node]}: {node}")
+    plt.suptitle(
+        "Entity = red, Officer = blue, Intermediary = green, Address = yellow, Other = gray",
+        y=0.01,
+        fontsize=plt.rcParams["font.size"],
+        color="gray",
+    )
+    plt.show()
+
+
+def global_view(G: nx.Graph, by: str, self_loops=False):
     """Create a global view of the network grouping by a certain attribute.
-    
+
     Params:
         - G (nx.Graph): networkx Grap
         - by (str): node attribute to groupe by
@@ -236,7 +395,7 @@ def global_view(G: nx.Graph, by:str, self_loops=False):
 
     G = nx.MultiGraph(G.copy())
 
-    #iterate over the unique expressions of the 'by' attribute
+    # iterate over the unique expressions of the 'by' attribute
     mapper = {}
     for by_attr in np.unique(list(nx.get_node_attributes(G, by).values())):
         G, target_node = contract_nodes(G, f"{by} == '{by_attr}'", self_loops)
@@ -259,17 +418,17 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
     """
     # Create a new simple graph to hold the converted structure
     G_new = nx.Graph()
-    
+
     # Iterate over each edge in the MultiGraph
     for u, v, data in G.edges(data=True):
-        #get weight of edge if exists otherwise use default of 1
+        # get weight of edge if exists otherwise use default of 1
         edge_weight = data.get("weight", 1)
 
         # If the edge already exists in the new graph, increment its weight
         if G_new.has_edge(u, v):
-            G_new[u][v]['weight'] += edge_weight
+            G_new[u][v]["weight"] += edge_weight
             continue
-        
+
         # Add a new edge with initial weight if it does not exist
         G_new.add_edge(u, v, weight=edge_weight)
 
@@ -278,7 +437,7 @@ def multigraph_to_graph(G: nx.MultiGraph) -> nx.Graph:
 
     # Copy all node attributes from the original MultiGraph to the new Graph
     nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
-    
+
     return G_new
 
 
