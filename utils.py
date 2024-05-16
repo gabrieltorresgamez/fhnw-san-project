@@ -303,7 +303,7 @@ def get_swiss_officer_entities_subgraph(G):
 
 def plot_ego_with_labels(G, node, color_map, plot_subgraph=True, ego_radius=1, plot_type_circular=True):
     ego = nx.ego_graph(G, node, radius=ego_radius, undirected=True)
-    pos = nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego)
+    pos = nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego, k=0.5)
     colors = [color_map[G.nodes[n]["node_type"]] for n in ego.nodes]
     labels = {
         n: (G.nodes[n]["name"] if G.nodes[n]["node_type"] != "Address" else G.nodes[n]["address"].split(",")[0])
