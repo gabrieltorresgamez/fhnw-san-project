@@ -23,6 +23,9 @@ pylibcugraph-cu12 = { version = "^24.4.0", source = "rapids" }
 pylibraft-cu12 = { version = "^24.4.0", source = "rapids" }
 rmm-cu12 = { version = "^24.4.0", source = "rapids" }
 numpy = "^1.26.4"
+tqdm = "^4.66.4"
+ipywidgets = "^8.1.2"
+seaborn = "^0.13.2"
 
 
 [build-system]
