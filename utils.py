@@ -1,10 +1,12 @@
 import os
 import re
+import random
+import numpy as np
 import pandas as pd
 import networkx as nx
+import matplotlib.pyplot as plt
+from tqdm.notebook import tqdm
 from concurrent.futures import ProcessPoolExecutor
-import numpy as np
-import random
 
 
 def __remove_special_characters(text):
@@ -194,6 +196,150 @@ def contract_nodes(G: nx.Graph, query: str, self_loops=False):
     nx.set_node_attributes(G, {target: target_attr})
 
     return G, target
+
+
+def merge_duplicate_nodes(graph, exclude_attributes=["label"]):
+    """
+    Removes duplicate edges from a graph. An edge is considered a duplicate if it has
+    the same source, target, and 'link' attribute as another edge. Only the first occurrence
+    of a duplicate edge is retained.
+
+    Parameters:
+        graph (networkx.Graph): The graph from which duplicate edges are to be removed.
+                                 This graph is not modified; a new graph is returned.
+
+    Returns:
+        networkx.Graph: A new graph instance that is a copy of the original but with all
+                        duplicate edges removed. This ensures that each edge is unique
+                        based on the combination of source, target, and 'link' attribute.
+
+    Note:
+        This function handles graphs with multiple edges between the same nodes by comparing
+        the 'link' attribute. It assumes that this attribute exists for all edges. If it does
+        not, the function may behave unexpectedly.
+    """
+
+    # Convert graph nodes to DataFrame and copy the graph.
+    updated_graph = graph.copy()
+    node_attributes = pd.DataFrame.from_dict(dict(updated_graph.nodes(data=True)), orient="index")
+
+    # Normalize attribute values for consistent comparison.
+    replace_dict = {
+        "_": " ",
+        "-": " ",
+        "ä": "ae",
+        "ö": "oe",
+        "ü": "ue",
+        "ß": "ss",
+    }
+    node_attributes = node_attributes.map(
+        lambda x: "".join(replace_dict.get(c, c) for c in x.lower()) if isinstance(x, str) else x
+    )
+
+    # Group nodes, excluding specified attributes for comparison.
+    relevant_attributes = node_attributes.columns.difference(exclude_attributes)
+    grouped_nodes = node_attributes.groupby(list(relevant_attributes), dropna=False)
+
+    # Merge nodes with identical attributes.
+    for _, nodes_in_group in tqdm(grouped_nodes, desc="Merging duplicate nodes", total=len(grouped_nodes)):
+        if len(nodes_in_group) > 1:
+            primary_node = nodes_in_group.index[0]
+            for node_id in nodes_in_group.index[1:]:
+                nx.contracted_nodes(updated_graph, primary_node, node_id, self_loops=False, copy=False)
+
+    return updated_graph
+
+
+def remove_duplicate_edges(graph):
+    """
+    Removes duplicate edges from a graph based on a specific attribute within each edge.
+
+    Parameters:
+        graph (networkx.Graph): The graph from which duplicate edges will be removed.
+
+    Returns:
+        networkx.Graph: A new graph with duplicate edges removed based on the 'link' attribute.
+
+    Notes:
+        This function identifies duplicates by creating a unique signature for each edge based
+        on the 'source', 'target', and 'link' attribute. It collects all unique edges and removes
+        any additional edges that have the same signature.
+    """
+    updated_graph = graph.copy()
+    existing_edges = set()
+    redundant_edges = []
+
+    # Iterate over all edges and identify duplicates.
+    for source, target, key, data in tqdm(updated_graph.edges(data=True, keys=True), desc="Removing duplicate edges"):
+        edge_signature = (source, target, data["link"])
+
+        # Check and mark duplicate edges.
+        if edge_signature in existing_edges:
+            redundant_edges.append((source, target, key))
+        else:
+            existing_edges.add(edge_signature)
+
+    # Remove identified duplicate edges.
+    for source, target, key in redundant_edges:
+        updated_graph.remove_edge(source, target, key)
+
+    return updated_graph
+
+
+def get_swiss_officer_entities_subgraph(G):
+    swiss_officers = filter_nodes(G, query="countries == 'Switzerland' and node_type == 'Officer'")
+    all_entities = filter_nodes(G, query="node_type == 'Entity'")
+
+    swiss_officers_entities_subgraph_ = G.subgraph(set(swiss_officers) | set(all_entities))
+    filtered_edges_u_v_k = [
+        (u, v, k)
+        for u, v, k in swiss_officers_entities_subgraph_.edges(keys=True)
+        if u in swiss_officers and v in all_entities
+    ]
+    swiss_officers_entities_subgraph = G.edge_subgraph(filtered_edges_u_v_k)
+
+    return swiss_officers_entities_subgraph, swiss_officers, all_entities
+
+
+def plot_ego_with_labels(G, node, color_map, plot_subgraph=True, ego_radius=1, plot_type_circular=True):
+    ego = nx.ego_graph(G, node, radius=ego_radius, undirected=True)
+    pos = nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego)
+    colors = [color_map[G.nodes[n]["node_type"]] for n in ego.nodes]
+    labels = {
+        n: (G.nodes[n]["name"] if G.nodes[n]["node_type"] != "Address" else G.nodes[n]["address"].split(",")[0])
+        for n in ego.nodes
+    }
+
+    edge_labels = {}
+    for u, v, d in ego.edges(data=True):
+        key = (u, v)
+        if key not in edge_labels:
+            edge_labels[key] = []
+        edge_labels[key].append(d["link"])
+
+    combined_edge_labels = {k: "\n".join(v) for k, v in edge_labels.items()}
+
+    nx.draw(
+        ego,
+        pos,
+        with_labels=True,
+        node_color=colors,
+        labels=labels,
+        font_size=plt.rcParams["font.size"],
+        edge_color="#D3D3D3",
+    )
+    nx.draw_networkx_edge_labels(
+        ego, pos, edge_labels=combined_edge_labels, font_color="red", font_size=plt.rcParams["font.size"] - 1
+    )
+
+    plt.title(f"Ego graph of {labels[node]}: {node}")
+    plt.suptitle(
+        "Entity = red, Officer = blue, Intermediary = green, Address = yellow, Other = gray",
+        y=0.01,
+        fontsize=plt.rcParams["font.size"],
+        color="gray",
+    )
+    plt.show()
 
 
 def global_view(G: nx.Graph, by: str, self_loops=False):
