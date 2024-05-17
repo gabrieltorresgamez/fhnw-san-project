@@ -1,13 +1,10 @@
 import os
 import re
-import random
 import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
-from concurrent.futures import ProcessPoolExecutor
-import numpy as np
 
 
 def __remove_special_characters(text):
