@@ -1,6 +1,5 @@
 import os
 import re
-import random
 import numpy as np
 import pandas as pd
 import networkx as nx
@@ -8,6 +7,7 @@ import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
 from itertools import combinations
 import numpy as np
+from joblib import Parallel, delayed
 
 
 def __remove_special_characters(text):
@@ -542,9 +542,10 @@ def dyadic_hypothesis_test(
     G1: nx.Graph,
     G2: nx.Graph,
     metric: callable = lambda x, y: pearson_correlation(x, y),
-    n: int = 20000,
+    n: int = 10000,
     self_loops: bool = False,
     dtype=np.int8,
+    n_jobs: int = -1,  # Use all available cores by default
 ):
     """
     Perform a dyadic hypothesis test between two graphs G1 and G2 using a specified metric.
@@ -553,12 +554,13 @@ def dyadic_hypothesis_test(
     G1 (nx.Graph): The first input graph.
     G2 (nx.Graph): The second input graph, which must have the same nodes as G1.
     metric (callable): A function to compute the similarity metric between the graphs. Default is Pearson correlation coefficient.
-    n (int): The number of permutations to perform for the test. Default is 20,000.
+    n (int): The number of permutations to perform for the test. Default is 10'000.
     self_loops (bool): False -> ignores self loops
     dtype (type): The data type to use for adjacency matrices. Default is np.int8.
+    n_jobs (int): The number of parallel jobs to run. Default is -1 (use all available cores).
 
     Returns:
-    tuple: The metric of the original graphs and a list of metrics from the permuted graphs.
+    dict: The metric of the original graphs, a list of metrics from the permuted graphs and the p_value (probability that metric_random >= metric_original)
     """
     # Ensure G1 and G2 have the same number of nodes
     assert (
@@ -566,7 +568,7 @@ def dyadic_hypothesis_test(
     ), "G1 and G2 must have the same number of nodes"
     # Ensure G1 and G2 have the same nodes
     assert (
-        np.array(sorted(list(G1.nodes()))) == np.array(sorted(list(G2.nodes())))
+        np.array(sorted(G1.nodes())) == np.array(sorted(G2.nodes()))
     ).all(), "G1 and G2 must have the same nodes"
 
     def QAP(adj_matrix: np.ndarray):
@@ -579,29 +581,26 @@ def dyadic_hypothesis_test(
         Returns:
         np.ndarray: The permuted adjacency matrix.
         """
+
         # Define random row and column permutations
         row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
         col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
 
-        # Apply the permutations to the adjacency matrix
         return adj_matrix[row_permutation, :][:, col_permutation]
 
     # Get node order
     nodes = list(G1.nodes())
 
-    # empty array for arg deletion
-    arg_del = np.array([])
-
     # if self loops not allowed -> args for diagonal deletion
     if not self_loops:
-        arg_del = np.vstack(np.diag_indices(len(nodes))).T
+        arg_del = np.diag_indices(len(nodes))
+    else:
+        arg_del = ([], [])
 
     # Calculate vectorized form of G1 since this is not permuted later
-    G1_vector = (
-        np.delete(nx.adjacency_matrix(G1, nodes).toarray(), arg_del)
-        .astype(dtype)
-        .flatten()
-    )
+    G1_vector = np.delete(
+        nx.adjacency_matrix(G1, nodes).toarray().astype(dtype), arg_del
+    ).flatten()
 
     def apply_metric(G2_adj: np.ndarray):
         """
@@ -621,9 +620,15 @@ def dyadic_hypothesis_test(
     # Calculate metric of original graph
     metric_original = apply_metric(G2_adj)
 
-    # Permute G2_adj and calculate metric n times
-    metric_runs = []
-    for _ in tqdm(range(n)):
-        metric_runs.append(apply_metric(QAP(G2_adj)))
+    # Permute G2_adj and calculate metric n times in parallel
+    metric_runs = Parallel(n_jobs=n_jobs)(
+        delayed(apply_metric)(QAP(G2_adj)) for _ in tqdm(range(n))
+    )
 
-    return metric_original, metric_runs
+    p_val = (np.array(metric_runs) >= metric_original).mean()
+
+    return {
+        "metric_original": metric_original,
+        "metrics_permuted": metric_runs,
+        "p_value": p_val,
+    }
