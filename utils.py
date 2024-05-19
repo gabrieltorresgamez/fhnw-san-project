@@ -6,7 +6,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
-from concurrent.futures import ProcessPoolExecutor
+from itertools import combinations
 import numpy as np
 
 
@@ -480,3 +480,150 @@ def permute_graph_QAP(G: nx.Graph, self_loops=False) -> nx.Graph:
     nx.set_node_attributes(new_G, dict(G.nodes(data=True)))
 
     return new_G
+
+
+def graph_from_attr_name(G: nx.Graph, attribute_name: str) -> nx.Graph:
+    """
+    Create a new graph based on a given node attribute from an existing graph.
+
+    This function generates a new graph where edges are created between nodes
+    that share the same value for a specified attribute in the original graph.
+    Nodes without any connections in the new graph are still included.
+
+    Parameters:
+    -----------
+    G : nx.Graph
+        The original graph from which the new graph is created.
+    attribute_name : str
+        The name of the attribute based on which the new graph's edges are formed.
+
+    Returns:
+    --------
+    nx.Graph
+        A new graph where nodes sharing the same attribute value are connected.
+    """
+
+    # Extract the specified attribute from the original graph's nodes into a DataFrame
+    attribute = pd.DataFrame.from_dict(
+        nx.get_node_attributes(G, attribute_name), orient="index", columns=["attr"]
+    )
+
+    # Initialize an empty list to hold the edge pairs
+    edgelist = []
+
+    # Group nodes by the specified attribute value and create edges between all nodes in each group
+    for _, df in attribute.groupby("attr"):
+        combinations_indices = list(combinations(df.index, 2))
+        edgelist.extend(combinations_indices)
+
+    # Create a new graph from the generated edge list
+    G_new = nx.from_edgelist(edgelist)
+
+    # Add nodes that were in the original graph but have no edges in the new graph
+    G_new.add_nodes_from(np.setdiff1d(list(G.nodes()), list(G_new.nodes())))
+
+    # Copy all node attributes from the original graph to the new graph
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+
+    return G_new
+
+
+def pearson_correlation(x, y):
+    x = np.array(x)
+    y = np.array(y)
+    mean_x = np.mean(x)
+    mean_y = np.mean(y)
+    numerator = np.sum((x - mean_x) * (y - mean_y))
+    denominator = np.sqrt(np.sum((x - mean_x) ** 2) * np.sum((y - mean_y) ** 2))
+    return numerator / denominator
+
+
+def dyadic_hypothesis_test(
+    G1: nx.Graph,
+    G2: nx.Graph,
+    metric: callable = lambda x, y: pearson_correlation(x, y),
+    n: int = 20000,
+    self_loops: bool = False,
+    dtype=np.int8,
+):
+    """
+    Perform a dyadic hypothesis test between two graphs G1 and G2 using a specified metric.
+
+    Parameters:
+    G1 (nx.Graph): The first input graph.
+    G2 (nx.Graph): The second input graph, which must have the same nodes as G1.
+    metric (callable): A function to compute the similarity metric between the graphs. Default is Pearson correlation coefficient.
+    n (int): The number of permutations to perform for the test. Default is 20,000.
+    self_loops (bool): False -> ignores self loops
+    dtype (type): The data type to use for adjacency matrices. Default is np.int8.
+
+    Returns:
+    tuple: The metric of the original graphs and a list of metrics from the permuted graphs.
+    """
+    # Ensure G1 and G2 have the same number of nodes
+    assert (
+        G1.number_of_nodes() == G2.number_of_nodes()
+    ), "G1 and G2 must have the same number of nodes"
+    # Ensure G1 and G2 have the same nodes
+    assert (
+        np.array(sorted(list(G1.nodes()))) == np.array(sorted(list(G2.nodes())))
+    ).all(), "G1 and G2 must have the same nodes"
+
+    def QAP(adj_matrix: np.ndarray):
+        """
+        Perform a Quadratic Assignment Procedure (QAP) by randomly permuting the rows and columns of the adjacency matrix.
+
+        Parameters:
+        adj_matrix (np.ndarray): The adjacency matrix to be permuted.
+
+        Returns:
+        np.ndarray: The permuted adjacency matrix.
+        """
+        # Define random row and column permutations
+        row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
+        col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
+
+        # Apply the permutations to the adjacency matrix
+        return adj_matrix[row_permutation, :][:, col_permutation]
+
+    # Get node order
+    nodes = list(G1.nodes())
+
+    # empty array for arg deletion
+    arg_del = np.array([])
+
+    # if self loops not allowed -> args for diagonal deletion
+    if not self_loops:
+        arg_del = np.vstack(np.diag_indices(len(nodes))).T
+
+    # Calculate vectorized form of G1 since this is not permuted later
+    G1_vector = (
+        np.delete(nx.adjacency_matrix(G1, nodes).toarray(), arg_del)
+        .astype(dtype)
+        .flatten()
+    )
+
+    def apply_metric(G2_adj: np.ndarray):
+        """
+        Apply the specified metric to the vectorized form of G1 and the flattened G2 adjacency matrix.
+
+        Parameters:
+        G2_adj (np.ndarray): The adjacency matrix of G2.
+
+        Returns:
+        float: The computed metric value.
+        """
+        return metric(G1_vector, np.delete(G2_adj, arg_del).flatten())
+
+    # Calculate adjacency matrix of G2
+    G2_adj = nx.adjacency_matrix(G2, nodes).toarray().astype(dtype)
+
+    # Calculate metric of original graph
+    metric_original = apply_metric(G2_adj)
+
+    # Permute G2_adj and calculate metric n times
+    metric_runs = []
+    for _ in tqdm(range(n)):
+        metric_runs.append(apply_metric(QAP(G2_adj)))
+
+    return metric_original, metric_runs
