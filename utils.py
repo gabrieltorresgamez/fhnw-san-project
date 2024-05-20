@@ -572,7 +572,7 @@ def dyadic_hypothesis_test(
     self_loops (bool): Whether to include self-loops (diagonal elements) in the adjacency matrices. Default is False.
 
     Returns:
-    dict: A dictionary containing the metric of the original graphs, a list of metrics from the permuted graphs, and the p_value (probability that metric_random >= metric_original).
+    tuple: original metric, dataframe containing the metrics of the permuted graphs
     """
 
     # Ensure G1 and G2 have the same number of nodes
@@ -643,22 +643,12 @@ def dyadic_hypothesis_test(
         col_permutation = torch.randperm(adj_matrix.shape[1], device=device)
 
         # Perform permutation and return
-        return adj_matrix[row_permutation][:, col_permutation]
+        return adj_matrix[row_permutation, :][:, col_permutation]
 
     # Permute G2_adj and calculate metric n times
     metric_runs = []
     for _ in tqdm(range(n)):
-        # Perform permutation
-        G2_adj = QAP(G2_adj)
+        # Apply QAP and calculate metric to permuted adjacency matrix
+        metric_runs.append(apply_metric(QAP(G2_adj)))
 
-        # Apply metric to permuted adjacency matrix
-        metric_runs.append(apply_metric(G2_adj))
-
-    # Calculate p-value
-    p_val = (np.array(metric_runs) >= metric_original).mean()
-
-    return {
-        "metric_original": metric_original,
-        "metrics_permuted": metric_runs,
-        "p_value": p_val,
-    }
+    return metric_original, pd.DataFrame({"metric_permuted": metric_runs})
