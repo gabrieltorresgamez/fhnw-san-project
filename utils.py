@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
 from itertools import combinations
 import numpy as np
-from joblib import Parallel, delayed
+import torch
 
 
 def __remove_special_characters(text):
@@ -529,12 +529,22 @@ def graph_from_attr_name(G: nx.Graph, attribute_name: str) -> nx.Graph:
 
 
 def pearson_correlation(x, y):
-    x = np.array(x)
-    y = np.array(y)
-    mean_x = np.mean(x)
-    mean_y = np.mean(y)
-    numerator = np.sum((x - mean_x) * (y - mean_y))
-    denominator = np.sqrt(np.sum((x - mean_x) ** 2) * np.sum((y - mean_y) ** 2))
+    """
+    Compute the Pearson correlation coefficient between two tensors x and y.
+
+    Parameters:
+    x (torch.Tensor): The first input tensor.
+    y (torch.Tensor): The second input tensor.
+
+    Returns:
+    torch.Tensor: The Pearson correlation coefficient.
+    """
+    mean_x = torch.mean(x)
+    mean_y = torch.mean(y)
+    numerator = torch.sum((x - mean_x) * (y - mean_y))
+    denominator = torch.sqrt(
+        torch.sum((x - mean_x) ** 2) * torch.sum((y - mean_y) ** 2)
+    )
     return numerator / denominator
 
 
@@ -543,9 +553,9 @@ def dyadic_hypothesis_test(
     G2: nx.Graph,
     metric: callable = lambda x, y: pearson_correlation(x, y),
     n: int = 10000,
+    dtype=torch.float16,
+    device="cuda",
     self_loops: bool = False,
-    dtype=np.int8,
-    n_jobs: int = -1,  # Use all available cores by default
 ):
     """
     Perform a dyadic hypothesis test between two graphs G1 and G2 using a specified metric.
@@ -554,77 +564,92 @@ def dyadic_hypothesis_test(
     G1 (nx.Graph): The first input graph.
     G2 (nx.Graph): The second input graph, which must have the same nodes as G1.
     metric (callable): A function to compute the similarity metric between the graphs. Default is Pearson correlation coefficient.
-    n (int): The number of permutations to perform for the test. Default is 10'000.
-    self_loops (bool): False -> ignores self loops
-    dtype (type): The data type to use for adjacency matrices. Default is np.int8.
-    n_jobs (int): The number of parallel jobs to run. Default is -1 (use all available cores).
+    n (int): The number of permutations to perform for the test. Default is 10,000.
+    dtype (type): The data type to use for adjacency matrices. Default is torch.float16.
+    device (str): The device to use for tensor computations. Default is "cuda".
+    self_loops (bool): Whether to include self-loops (diagonal elements) in the adjacency matrices. Default is False.
 
     Returns:
-    dict: The metric of the original graphs, a list of metrics from the permuted graphs and the p_value (probability that metric_random >= metric_original)
+    dict: A dictionary containing the metric of the original graphs, a list of metrics from the permuted graphs, and the p_value (probability that metric_random >= metric_original).
     """
+
     # Ensure G1 and G2 have the same number of nodes
     assert (
         G1.number_of_nodes() == G2.number_of_nodes()
     ), "G1 and G2 must have the same number of nodes"
+
     # Ensure G1 and G2 have the same nodes
     assert (
         np.array(sorted(G1.nodes())) == np.array(sorted(G2.nodes()))
     ).all(), "G1 and G2 must have the same nodes"
 
-    def QAP(adj_matrix: np.ndarray):
-        """
-        Perform a Quadratic Assignment Procedure (QAP) by randomly permuting the rows and columns of the adjacency matrix.
-
-        Parameters:
-        adj_matrix (np.ndarray): The adjacency matrix to be permuted.
-
-        Returns:
-        np.ndarray: The permuted adjacency matrix.
-        """
-
-        # Define random row and column permutations
-        row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
-        col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
-
-        return adj_matrix[row_permutation, :][:, col_permutation]
-
     # Get node order
     nodes = list(G1.nodes())
 
-    # if self loops not allowed -> args for diagonal deletion
     if not self_loops:
-        arg_del = np.diag_indices(len(nodes))
+        # Create a mask to ignore diagonal elements
+        mask = torch.tensor(
+            ~np.eye(len(nodes), dtype=bool), dtype=torch.bool, device=device
+        )
     else:
-        arg_del = ([], [])
+        mask = torch.tensor(
+            np.ones(len(nodes), dtype=bool), dtype=torch.bool, device=device
+        )
 
-    # Calculate vectorized form of G1 since this is not permuted later
-    G1_vector = np.delete(
-        nx.adjacency_matrix(G1, nodes).toarray().astype(dtype), arg_del
-    ).flatten()
+    # Vectorize G1 using the mask and convert to torch tensor
+    G1_vector = torch.tensor(
+        nx.adjacency_matrix(G1, nodes).toarray(), dtype=dtype, device=device
+    )[mask].flatten()
 
-    def apply_metric(G2_adj: np.ndarray):
+    # Calculate adjacency matrix of G2 and convert to torch tensor
+    G2_adj = torch.tensor(
+        nx.adjacency_matrix(G2, nodes).toarray(), dtype=dtype, device=device
+    )
+
+    def apply_metric(G2_adj: torch.Tensor):
         """
         Apply the specified metric to the vectorized form of G1 and the flattened G2 adjacency matrix.
 
         Parameters:
-        G2_adj (np.ndarray): The adjacency matrix of G2.
+        G2_adj (torch.Tensor): The adjacency matrix of G2.
 
         Returns:
-        float: The computed metric value.
+        torch.Tensor: The computed metric value.
         """
-        return metric(G1_vector, np.delete(G2_adj, arg_del).flatten())
-
-    # Calculate adjacency matrix of G2
-    G2_adj = nx.adjacency_matrix(G2, nodes).toarray().astype(dtype)
+        # Apply the mask and flatten G2 adjacency matrix
+        G2_vector = G2_adj[mask].flatten()
+        return metric(G1_vector, G2_vector).cpu().item()
 
     # Calculate metric of original graph
     metric_original = apply_metric(G2_adj)
 
-    # Permute G2_adj and calculate metric n times in parallel
-    metric_runs = Parallel(n_jobs=n_jobs)(
-        delayed(apply_metric)(QAP(G2_adj)) for _ in tqdm(range(n))
-    )
+    def QAP(adj_matrix: torch.Tensor):
+        """
+        Perform a Quadratic Assignment Procedure (QAP) by randomly permuting the rows and columns of the adjacency matrix.
 
+        Parameters:
+        adj_matrix (torch.Tensor): The adjacency matrix to permute.
+
+        Returns:
+        torch.Tensor: The permuted adjacency matrix.
+        """
+        # Define random row and column permutations for G2_adj
+        row_permutation = torch.randperm(adj_matrix.shape[0], device=device)
+        col_permutation = torch.randperm(adj_matrix.shape[1], device=device)
+
+        # Perform permutation and return
+        return adj_matrix[row_permutation][:, col_permutation]
+
+    # Permute G2_adj and calculate metric n times
+    metric_runs = []
+    for _ in tqdm(range(n)):
+        # Perform permutation
+        G2_adj = QAP(G2_adj)
+
+        # Apply metric to permuted adjacency matrix
+        metric_runs.append(apply_metric(G2_adj))
+
+    # Calculate p-value
     p_val = (np.array(metric_runs) >= metric_original).mean()
 
     return {

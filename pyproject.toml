@@ -11,6 +11,11 @@ name="rapids"
 url="https://pypi.nvidia.com"
 priority="supplemental"
 
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+priority="supplemental"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 networkx = "^3.3"
@@ -28,7 +33,7 @@ ipywidgets = "^8.1.2"
 seaborn = "^0.13.2"
 joblib = "^1.4.2"
 scikit-learn = "^1.4.2"
-
+torch = { version = "^2.3.0", source = "pytorch" }
 
 [build-system]
 requires = ["poetry-core"]
