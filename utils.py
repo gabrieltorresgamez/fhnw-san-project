@@ -528,7 +528,7 @@ def graph_from_attr_name(G: nx.Graph, attribute_name: str) -> nx.Graph:
     return G_new
 
 
-def pearson_correlation(x, y):
+def pearson_correlation(x: torch.Tensor, y: torch.Tensor):
     """
     Compute the Pearson correlation coefficient between two tensors x and y.
 
@@ -539,11 +539,13 @@ def pearson_correlation(x, y):
     Returns:
     torch.Tensor: The Pearson correlation coefficient.
     """
-    mean_x = torch.mean(x)
-    mean_y = torch.mean(y)
-    numerator = torch.sum((x - mean_x) * (y - mean_y))
+
+    mean_x = torch.nanmean(x, dtype=torch.float32)
+    mean_y = torch.nanmean(y, dtype=torch.float32)
+    numerator = torch.nansum((x - mean_x) * (y - mean_y), dtype=torch.float32)
     denominator = torch.sqrt(
-        torch.sum((x - mean_x) ** 2) * torch.sum((y - mean_y) ** 2)
+        torch.nansum((x - mean_x) ** 2, dtype=torch.float32)
+        * torch.nansum((y - mean_y) ** 2, dtype=torch.float32)
     )
     return numerator / denominator
 
@@ -586,20 +588,17 @@ def dyadic_hypothesis_test(
     # Get node order
     nodes = list(G1.nodes())
 
-    if not self_loops:
-        # Create a mask to ignore diagonal elements
-        mask = torch.tensor(
-            ~np.eye(len(nodes), dtype=bool), dtype=torch.bool, device=device
-        )
-    else:
-        mask = torch.tensor(
-            np.ones(len(nodes), dtype=bool), dtype=torch.bool, device=device
-        )
-
-    # Vectorize G1 using the mask and convert to torch tensor
+    # Create adjacency matrix for G1 and send to device
     G1_vector = torch.tensor(
         nx.adjacency_matrix(G1, nodes).toarray(), dtype=dtype, device=device
-    )[mask].flatten()
+    )
+
+    # ignoring self loops activated -> set diagonal to nan
+    if not self_loops:
+        G1_vector = G1_vector.fill_diagonal_(float("nan"))
+
+    # make to vector
+    G1_vector = G1_vector.flatten()
 
     # Calculate adjacency matrix of G2 and convert to torch tensor
     G2_adj = torch.tensor(
@@ -616,8 +615,14 @@ def dyadic_hypothesis_test(
         Returns:
         torch.Tensor: The computed metric value.
         """
-        # Apply the mask and flatten G2 adjacency matrix
-        G2_vector = G2_adj[mask].flatten()
+
+        # ignoring self loops activated -> set diagonal to nan
+        if not self_loops:
+            G2_vector = G2_adj.fill_diagonal_(float("nan"))
+
+        # make to vector
+        G2_vector = G2_vector.flatten()
+
         return metric(G1_vector, G2_vector).cpu().item()
 
     # Calculate metric of original graph
