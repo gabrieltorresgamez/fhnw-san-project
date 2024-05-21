@@ -460,11 +460,10 @@ def permute_graph_QAP(G: nx.Graph, self_loops=False) -> nx.Graph:
     adj_matrix = nx.adjacency_matrix(G, nodelist).todense()
 
     # Define random row and column permutations
-    row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
-    col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
+    permutation = np.random.permutation(np.arange(len(nodelist)))
 
     # Apply the permutations to the adjacency matrix
-    adj_matrix = adj_matrix[row_permutation, :][:, col_permutation]
+    adj_matrix = adj_matrix[permutation, :][:, permutation]
 
     # if self loops disabled -> set diag to zero
     if not self_loops:
@@ -638,12 +637,11 @@ def dyadic_hypothesis_test(
         Returns:
         torch.Tensor: The permuted adjacency matrix.
         """
-        # Define random row and column permutations for G2_adj
-        row_permutation = torch.randperm(adj_matrix.shape[0], device=device)
-        col_permutation = torch.randperm(adj_matrix.shape[1], device=device)
+        # Define random row and column permutations for adj_matrix
+        permutation = torch.randperm(adj_matrix.shape[0], device=device)
 
         # Perform permutation and return
-        return adj_matrix[row_permutation, :][:, col_permutation]
+        return adj_matrix[permutation, :][:, permutation]
 
     # Permute G2_adj and calculate metric n times
     metric_runs = []
