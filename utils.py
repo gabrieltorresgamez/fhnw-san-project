@@ -1,13 +1,13 @@
 import os
 import re
-import random
 import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
-from concurrent.futures import ProcessPoolExecutor
+from itertools import combinations
 import numpy as np
+import torch
 
 
 def __remove_special_characters(text):
@@ -460,11 +460,10 @@ def permute_graph_QAP(G: nx.Graph, self_loops=False) -> nx.Graph:
     adj_matrix = nx.adjacency_matrix(G, nodelist).todense()
 
     # Define random row and column permutations
-    row_permutation = np.random.permutation(np.arange(adj_matrix.shape[0]))
-    col_permutation = np.random.permutation(np.arange(adj_matrix.shape[1]))
+    permutation = np.random.permutation(np.arange(len(nodelist)))
 
     # Apply the permutations to the adjacency matrix
-    adj_matrix = adj_matrix[row_permutation, :][:, col_permutation]
+    adj_matrix = adj_matrix[permutation, :][:, permutation]
 
     # if self loops disabled -> set diag to zero
     if not self_loops:
@@ -480,3 +479,174 @@ def permute_graph_QAP(G: nx.Graph, self_loops=False) -> nx.Graph:
     nx.set_node_attributes(new_G, dict(G.nodes(data=True)))
 
     return new_G
+
+
+def graph_from_attr_name(G: nx.Graph, attribute_name: str) -> nx.Graph:
+    """
+    Create a new graph based on a given node attribute from an existing graph.
+
+    This function generates a new graph where edges are created between nodes
+    that share the same value for a specified attribute in the original graph.
+    Nodes without any connections in the new graph are still included.
+
+    Parameters:
+    -----------
+    G : nx.Graph
+        The original graph from which the new graph is created.
+    attribute_name : str
+        The name of the attribute based on which the new graph's edges are formed.
+
+    Returns:
+    --------
+    nx.Graph
+        A new graph where nodes sharing the same attribute value are connected.
+    """
+
+    # Extract the specified attribute from the original graph's nodes into a DataFrame
+    attribute = pd.DataFrame.from_dict(
+        nx.get_node_attributes(G, attribute_name), orient="index", columns=["attr"]
+    )
+
+    # Initialize an empty list to hold the edge pairs
+    edgelist = []
+
+    # Group nodes by the specified attribute value and create edges between all nodes in each group
+    for _, df in attribute.groupby("attr"):
+        combinations_indices = list(combinations(df.index, 2))
+        edgelist.extend(combinations_indices)
+
+    # Create a new graph from the generated edge list
+    G_new = nx.from_edgelist(edgelist)
+
+    # Add nodes that were in the original graph but have no edges in the new graph
+    G_new.add_nodes_from(np.setdiff1d(list(G.nodes()), list(G_new.nodes())))
+
+    # Copy all node attributes from the original graph to the new graph
+    nx.set_node_attributes(G_new, dict(G.nodes(data=True)))
+
+    return G_new
+
+
+def pearson_correlation(x: torch.Tensor, y: torch.Tensor):
+    """
+    Compute the Pearson correlation coefficient between two tensors x and y.
+
+    Parameters:
+    x (torch.Tensor): The first input tensor.
+    y (torch.Tensor): The second input tensor.
+
+    Returns:
+    torch.Tensor: The Pearson correlation coefficient.
+    """
+
+    mean_x = torch.nanmean(x, dtype=torch.float32)
+    mean_y = torch.nanmean(y, dtype=torch.float32)
+    numerator = torch.nansum((x - mean_x) * (y - mean_y), dtype=torch.float32)
+    denominator = torch.sqrt(
+        torch.nansum((x - mean_x) ** 2, dtype=torch.float32)
+        * torch.nansum((y - mean_y) ** 2, dtype=torch.float32)
+    )
+    return numerator / denominator
+
+
+def dyadic_hypothesis_test(
+    G1: nx.Graph,
+    G2: nx.Graph,
+    metric: callable = lambda x, y: pearson_correlation(x, y),
+    n: int = 10000,
+    dtype=torch.float16,
+    device="cuda",
+    self_loops: bool = False,
+):
+    """
+    Perform a dyadic hypothesis test between two graphs G1 and G2 using a specified metric.
+
+    Parameters:
+    G1 (nx.Graph): The first input graph.
+    G2 (nx.Graph): The second input graph, which must have the same nodes as G1.
+    metric (callable): A function to compute the similarity metric between the graphs. Default is Pearson correlation coefficient.
+    n (int): The number of permutations to perform for the test. Default is 10,000.
+    dtype (type): The data type to use for adjacency matrices. Default is torch.float16.
+    device (str): The device to use for tensor computations. Default is "cuda".
+    self_loops (bool): Whether to include self-loops (diagonal elements) in the adjacency matrices. Default is False.
+
+    Returns:
+    tuple: original metric, dataframe containing the metrics of the permuted graphs
+    """
+
+    # Ensure G1 and G2 have the same number of nodes
+    assert (
+        G1.number_of_nodes() == G2.number_of_nodes()
+    ), "G1 and G2 must have the same number of nodes"
+
+    # Ensure G1 and G2 have the same nodes
+    assert (
+        np.array(sorted(G1.nodes())) == np.array(sorted(G2.nodes()))
+    ).all(), "G1 and G2 must have the same nodes"
+
+    # Get node order
+    nodes = list(G1.nodes())
+
+    # Create adjacency matrix for G1 and send to device
+    G1_vector = torch.tensor(
+        nx.adjacency_matrix(G1, nodes).toarray(), dtype=dtype, device=device
+    )
+
+    # ignoring self loops activated -> set diagonal to nan
+    if not self_loops:
+        G1_vector = G1_vector.fill_diagonal_(float("nan"))
+
+    # make to vector
+    G1_vector = G1_vector.flatten()
+
+    # Calculate adjacency matrix of G2 and convert to torch tensor
+    G2_adj = torch.tensor(
+        nx.adjacency_matrix(G2, nodes).toarray(), dtype=dtype, device=device
+    )
+
+    def apply_metric(G2_adj: torch.Tensor):
+        """
+        Apply the specified metric to the vectorized form of G1 and the flattened G2 adjacency matrix.
+
+        Parameters:
+        G2_adj (torch.Tensor): The adjacency matrix of G2.
+
+        Returns:
+        torch.Tensor: The computed metric value.
+        """
+
+        # ignoring self loops activated -> set diagonal to nan
+        if not self_loops:
+            G2_vector = G2_adj.fill_diagonal_(float("nan"))
+
+        # make to vector
+        G2_vector = G2_vector.flatten()
+
+        return metric(G1_vector, G2_vector).cpu().item()
+
+    # Calculate metric of original graph
+    metric_original = apply_metric(G2_adj)
+
+    def QAP(adj_matrix: torch.Tensor):
+        """
+        Perform a Quadratic Assignment Procedure (QAP) by randomly permuting the rows and columns of the adjacency matrix.
+
+        Parameters:
+        adj_matrix (torch.Tensor): The adjacency matrix to permute.
+
+        Returns:
+        torch.Tensor: The permuted adjacency matrix.
+        """
+        # Define random row and column permutations for adj_matrix
+        permutation = torch.randperm(adj_matrix.shape[0], device=device)
+
+        # Perform permutation and return
+        return adj_matrix[permutation, :][:, permutation]
+
+    # Permute G2_adj and calculate metric n times
+    metric_runs = []
+    for _ in tqdm(range(n)):
+        # Apply QAP and calculate metric to permuted adjacency matrix
+        metric_runs.append(apply_metric(QAP(G2_adj)))
+
+    return metric_original, pd.DataFrame({"metric_permuted": metric_runs})
