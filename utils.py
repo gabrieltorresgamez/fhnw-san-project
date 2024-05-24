@@ -8,6 +8,7 @@ from tqdm.notebook import tqdm
 from itertools import combinations
 import numpy as np
 import torch
+from collections import Counter
 
 
 def __remove_special_characters(text):
@@ -650,3 +651,100 @@ def dyadic_hypothesis_test(
         metric_runs.append(apply_metric(QAP(G2_adj)))
 
     return metric_original, pd.DataFrame({"metric_permuted": metric_runs})
+
+
+def describe_graph(G: nx.Graph, title: str):
+    """
+    Describe the given graph by displaying node types, edge types, and a visual representation.
+
+    Parameters:
+    - G (nx.Graph): The graph to be described. Nodes should have a 'node_type' attribute.
+    - title (str): The title for the graph plot.
+
+    This function performs the following:
+    1. Counts the number of each node type.
+    2. Counts the number of edges between each pair of node types.
+    3. Displays this information in a text box.
+    4. Creates a new graph representing node types and their connections.
+    5. Draws this graph with node sizes proportional to the number of nodes of each type and edge widths
+       proportional to the number of edges between node types.
+    """
+
+    # Get node types and their counts
+    node_types, count = np.unique(
+        list(nx.get_node_attributes(G, "node_type").values()), return_counts=True
+    )
+
+    # Prepare text for node types and counts
+    node_info = "$\mathbf{Node\ Types\ and\ Counts:}$\n" + "\n".join(
+        f"{node_type}: {cnt}" for node_type, cnt in zip(node_types, count)
+    )
+
+    # Initialize a counter for edge types
+    edge_types = Counter()
+
+    # Count edges between different node types
+    for u, v in G.edges():
+        u_type = G.nodes[u].get("node_type")
+        v_type = G.nodes[v].get("node_type")
+        if u_type and v_type:
+            # Ensure (u_type, v_type) is always in a consistent order
+            if u_type <= v_type:
+                edge_types[(u_type, v_type)] += 1
+            else:
+                edge_types[(v_type, u_type)] += 1
+
+    # Prepare text for edge types and counts
+    edge_info = "\n$\mathbf{Edge\ Types\ and\ Counts:}$\n" + "\n".join(
+        f"{edge_type[0]} - {edge_type[1]}: {cnt}"
+        for edge_type, cnt in edge_types.items()
+    )
+
+    # Concatenate node and edge info for display
+    full_info = f"{node_info}\n\n{edge_info}"
+
+    # Create a new graph to represent node types and their connections
+    type_graph = nx.Graph()
+
+    # Add nodes for each node type with size attribute
+    for node_type in node_types:
+        type_graph.add_node(node_type, size=count[np.where(node_types == node_type)][0])
+
+    # Add edges with weights representing the number of connections between types
+    for (u_type, v_type), cnt in edge_types.items():
+        type_graph.add_edge(u_type, v_type, weight=cnt)
+
+    # Create a subplot layout
+    fig, ax = plt.subplots()
+    plt.subplots_adjust(
+        right=0.74
+    )  # Adjust the right margin to make space for the text box
+
+    # Draw the graph
+    pos = nx.circular_layout(
+        type_graph
+    )  # Use circular layout for better visual separation
+    nx.draw_networkx(
+        type_graph, pos, ax=ax, font_size=20, node_color="yellow", node_size=6000
+    )
+    labels = nx.get_edge_attributes(type_graph, "weight")
+    nx.draw_networkx_edge_labels(
+        type_graph, pos, edge_labels=labels, ax=ax, font_size=20, node_size=6000
+    )
+    ax.axis("off")  # Hide axis
+
+    # Set up text box properties
+    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
+    plt.text(
+        0.75,
+        0.5,
+        full_info,
+        transform=plt.gcf().transFigure,
+        fontsize=20,
+        verticalalignment="center",
+        bbox=props,
+    )
+
+    # Set the title for the plot
+    fig.suptitle(title, fontsize=30)
+    plt.show()
