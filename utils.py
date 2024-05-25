@@ -8,6 +8,7 @@ from tqdm.notebook import tqdm
 from itertools import combinations
 import numpy as np
 import torch
+from collections import Counter
 
 
 def __remove_special_characters(text):
@@ -69,16 +70,12 @@ def get_graph(GRAPH_PATH, PAPERS="Pandora"):
     # filter all nodes and relationships that are not from the Pandora Papers
     addressNodes = addressNodes[addressNodes["sourceID"].str.contains(PAPERS)]
     entityNodes = entityNodes[entityNodes["sourceID"].str.contains(PAPERS)]
-    intermediaryNodes = intermediaryNodes[
-        intermediaryNodes["sourceID"].str.contains(PAPERS)
-    ]
+    intermediaryNodes = intermediaryNodes[intermediaryNodes["sourceID"].str.contains(PAPERS)]
     officerNodes = officerNodes[officerNodes["sourceID"].str.contains(PAPERS)]
     nodes_others = nodes_others[nodes_others["sourceID"].str.contains(PAPERS)]
 
     # alternatively, get all nodeIDs from all filtered nodes and remove relationships with nodeIDs that are not in this list
-    allNodeIDs = pd.concat(
-        [addressNodes, entityNodes, intermediaryNodes, officerNodes, nodes_others]
-    ).index
+    allNodeIDs = pd.concat([addressNodes, entityNodes, intermediaryNodes, officerNodes, nodes_others]).index
     relationships = relationships[
         relationships.index.get_level_values(0).isin(allNodeIDs)
         & relationships.index.get_level_values(1).isin(allNodeIDs)
@@ -92,10 +89,7 @@ def get_graph(GRAPH_PATH, PAPERS="Pandora"):
     G.add_nodes_from(list(officerNodes.to_dict("index").items()), bipartite=3)
     G.add_nodes_from(list(nodes_others.to_dict("index").items()), bipartite=4)
     G.add_edges_from(
-        [
-            (*relationships.index[i], value)
-            for i, value in enumerate(relationships.to_dict(orient="records"))
-        ]
+        [(*relationships.index[i], value) for i, value in enumerate(relationships.to_dict(orient="records"))]
     )
 
     # remove all the dataframes
@@ -133,13 +127,7 @@ def filter_graph_by_country_name(G, country_name, verbose=True):
     for component in nx.connected_components(G.to_undirected()):
         if country_name in list(
             nx.get_node_attributes(
-                G.subgraph(
-                    [
-                        node
-                        for node in component
-                        if G.nodes[node]["node_type"] == "Address"
-                    ]
-                ),
+                G.subgraph([node for node in component if G.nodes[node]["node_type"] == "Address"]),
                 "countries",
             ).values()
         ):
@@ -234,9 +222,7 @@ def merge_duplicate_nodes(graph, exclude_attributes=["label"]):
 
     # Convert graph nodes to DataFrame and copy the graph.
     updated_graph = graph.copy()
-    node_attributes = pd.DataFrame.from_dict(
-        dict(updated_graph.nodes(data=True)), orient="index"
-    )
+    node_attributes = pd.DataFrame.from_dict(dict(updated_graph.nodes(data=True)), orient="index")
 
     # Normalize attribute values for consistent comparison.
     replace_dict = {
@@ -248,11 +234,7 @@ def merge_duplicate_nodes(graph, exclude_attributes=["label"]):
         "ß": "ss",
     }
     node_attributes = node_attributes.map(
-        lambda x: (
-            "".join(replace_dict.get(c, c) for c in x.lower())
-            if isinstance(x, str)
-            else x
-        )
+        lambda x: ("".join(replace_dict.get(c, c) for c in x.lower()) if isinstance(x, str) else x)
     )
 
     # Group nodes, excluding specified attributes for comparison.
@@ -260,15 +242,11 @@ def merge_duplicate_nodes(graph, exclude_attributes=["label"]):
     grouped_nodes = node_attributes.groupby(list(relevant_attributes), dropna=False)
 
     # Merge nodes with identical attributes.
-    for _, nodes_in_group in tqdm(
-        grouped_nodes, desc="Merging duplicate nodes", total=len(grouped_nodes)
-    ):
+    for _, nodes_in_group in tqdm(grouped_nodes, desc="Merging duplicate nodes", total=len(grouped_nodes)):
         if len(nodes_in_group) > 1:
             primary_node = nodes_in_group.index[0]
             for node_id in nodes_in_group.index[1:]:
-                nx.contracted_nodes(
-                    updated_graph, primary_node, node_id, self_loops=False, copy=False
-                )
+                nx.contracted_nodes(updated_graph, primary_node, node_id, self_loops=False, copy=False)
 
     return updated_graph
 
@@ -293,9 +271,7 @@ def remove_duplicate_edges(graph):
     redundant_edges = []
 
     # Iterate over all edges and identify duplicates.
-    for source, target, key, data in tqdm(
-        updated_graph.edges(data=True, keys=True), desc="Removing duplicate edges"
-    ):
+    for source, target, key, data in tqdm(updated_graph.edges(data=True, keys=True), desc="Removing duplicate edges"):
         edge_signature = (source, target, data["link"])
 
         # Check and mark duplicate edges.
@@ -312,14 +288,10 @@ def remove_duplicate_edges(graph):
 
 
 def get_swiss_officer_entities_subgraph(G):
-    swiss_officers = filter_nodes(
-        G, query="countries == 'Switzerland' and node_type == 'Officer'"
-    )
+    swiss_officers = filter_nodes(G, query="countries == 'Switzerland' and node_type == 'Officer'")
     all_entities = filter_nodes(G, query="node_type == 'Entity'")
 
-    swiss_officers_entities_subgraph_ = G.subgraph(
-        set(swiss_officers) | set(all_entities)
-    )
+    swiss_officers_entities_subgraph_ = G.subgraph(set(swiss_officers) | set(all_entities))
     filtered_edges_u_v_k = [
         (u, v, k)
         for u, v, k in swiss_officers_entities_subgraph_.edges(keys=True)
@@ -332,16 +304,10 @@ def get_swiss_officer_entities_subgraph(G):
 
 def plot_ego_with_labels(G, node, color_map, ego_radius=1, plot_type_circular=True):
     ego = nx.ego_graph(G, node, radius=ego_radius, undirected=True)
-    pos = (
-        nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego, k=0.5)
-    )
+    pos = nx.circular_layout(ego) if plot_type_circular else nx.spring_layout(ego, k=0.5)
     colors = [color_map[G.nodes[n]["node_type"]] for n in ego.nodes]
     labels = {
-        n: (
-            G.nodes[n]["name"]
-            if G.nodes[n]["node_type"] != "Address"
-            else G.nodes[n]["address"].split(",")[0]
-        )
+        n: (G.nodes[n]["name"] if G.nodes[n]["node_type"] != "Address" else G.nodes[n]["address"].split(",")[0])
         for n in ego.nodes
     }
 
@@ -503,9 +469,7 @@ def graph_from_attr_name(G: nx.Graph, attribute_name: str) -> nx.Graph:
     """
 
     # Extract the specified attribute from the original graph's nodes into a DataFrame
-    attribute = pd.DataFrame.from_dict(
-        nx.get_node_attributes(G, attribute_name), orient="index", columns=["attr"]
-    )
+    attribute = pd.DataFrame.from_dict(nx.get_node_attributes(G, attribute_name), orient="index", columns=["attr"])
 
     # Initialize an empty list to hold the edge pairs
     edgelist = []
@@ -543,8 +507,7 @@ def pearson_correlation(x: torch.Tensor, y: torch.Tensor):
     mean_y = torch.nanmean(y, dtype=torch.float32)
     numerator = torch.nansum((x - mean_x) * (y - mean_y), dtype=torch.float32)
     denominator = torch.sqrt(
-        torch.nansum((x - mean_x) ** 2, dtype=torch.float32)
-        * torch.nansum((y - mean_y) ** 2, dtype=torch.float32)
+        torch.nansum((x - mean_x) ** 2, dtype=torch.float32) * torch.nansum((y - mean_y) ** 2, dtype=torch.float32)
     )
     return numerator / denominator
 
@@ -575,22 +538,16 @@ def dyadic_hypothesis_test(
     """
 
     # Ensure G1 and G2 have the same number of nodes
-    assert (
-        G1.number_of_nodes() == G2.number_of_nodes()
-    ), "G1 and G2 must have the same number of nodes"
+    assert G1.number_of_nodes() == G2.number_of_nodes(), "G1 and G2 must have the same number of nodes"
 
     # Ensure G1 and G2 have the same nodes
-    assert (
-        np.array(sorted(G1.nodes())) == np.array(sorted(G2.nodes()))
-    ).all(), "G1 and G2 must have the same nodes"
+    assert (np.array(sorted(G1.nodes())) == np.array(sorted(G2.nodes()))).all(), "G1 and G2 must have the same nodes"
 
     # Get node order
     nodes = list(G1.nodes())
 
     # Create adjacency matrix for G1 and send to device
-    G1_vector = torch.tensor(
-        nx.adjacency_matrix(G1, nodes).toarray(), dtype=dtype, device=device
-    )
+    G1_vector = torch.tensor(nx.adjacency_matrix(G1, nodes).toarray(), dtype=dtype, device=device)
 
     # ignoring self loops activated -> set diagonal to nan
     if not self_loops:
@@ -600,9 +557,7 @@ def dyadic_hypothesis_test(
     G1_vector = G1_vector.flatten()
 
     # Calculate adjacency matrix of G2 and convert to torch tensor
-    G2_adj = torch.tensor(
-        nx.adjacency_matrix(G2, nodes).toarray(), dtype=dtype, device=device
-    )
+    G2_adj = torch.tensor(nx.adjacency_matrix(G2, nodes).toarray(), dtype=dtype, device=device)
 
     def apply_metric(G2_adj: torch.Tensor):
         """
@@ -650,3 +605,89 @@ def dyadic_hypothesis_test(
         metric_runs.append(apply_metric(QAP(G2_adj)))
 
     return metric_original, pd.DataFrame({"metric_permuted": metric_runs})
+
+
+def describe_graph(G: nx.Graph, title: str):
+    """
+    Describe the given graph by displaying node types, edge types, and a visual representation.
+
+    Parameters:
+    - G (nx.Graph): The graph to be described. Nodes should have a 'node_type' attribute.
+    - title (str): The title for the graph plot.
+
+    This function performs the following:
+    1. Counts the number of each node type.
+    2. Counts the number of edges between each pair of node types.
+    3. Displays this information in a text box.
+    4. Creates a new graph representing node types and their connections.
+    5. Draws this graph with node sizes proportional to the number of nodes of each type and edge widths
+       proportional to the number of edges between node types.
+    """
+
+    # Get node types and their counts
+    node_types, count = np.unique(list(nx.get_node_attributes(G, "node_type").values()), return_counts=True)
+
+    # Prepare text for node types and counts
+    node_info = "$\mathbf{Node\ Types\ and\ Counts:}$\n" + "\n".join(
+        f"{node_type}: {cnt}" for node_type, cnt in zip(node_types, count)
+    )
+
+    # Initialize a counter for edge types
+    edge_types = Counter()
+
+    # Count edges between different node types
+    for u, v in G.edges():
+        u_type = G.nodes[u].get("node_type")
+        v_type = G.nodes[v].get("node_type")
+        if u_type and v_type:
+            # Ensure (u_type, v_type) is always in a consistent order
+            if u_type <= v_type:
+                edge_types[(u_type, v_type)] += 1
+            else:
+                edge_types[(v_type, u_type)] += 1
+
+    # Prepare text for edge types and counts
+    edge_info = "\n$\mathbf{Edge\ Types\ and\ Counts:}$\n" + "\n".join(
+        f"{edge_type[0]} - {edge_type[1]}: {cnt}" for edge_type, cnt in edge_types.items()
+    )
+
+    # Concatenate node and edge info for display
+    full_info = f"{node_info}\n\n{edge_info}"
+
+    # Create a new graph to represent node types and their connections
+    type_graph = nx.Graph()
+
+    # Add nodes for each node type with size attribute
+    for node_type in node_types:
+        type_graph.add_node(node_type, size=count[np.where(node_types == node_type)][0])
+
+    # Add edges with weights representing the number of connections between types
+    for (u_type, v_type), cnt in edge_types.items():
+        type_graph.add_edge(u_type, v_type, weight=cnt)
+
+    # Create a subplot layout
+    fig, ax = plt.subplots(figsize=(25, 10))
+    plt.subplots_adjust(right=0.74)  # Adjust the right margin to make space for the text box
+
+    # Draw the graph
+    pos = nx.circular_layout(type_graph)  # Use circular layout for better visual separation
+    nx.draw_networkx(type_graph, pos, ax=ax, font_size=20, node_color="yellow", node_size=6000)
+    labels = nx.get_edge_attributes(type_graph, "weight")
+    nx.draw_networkx_edge_labels(type_graph, pos, edge_labels=labels, ax=ax, font_size=20, node_size=6000)
+    ax.axis("off")  # Hide axis
+
+    # Set up text box properties
+    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
+    plt.text(
+        0.75,
+        0.5,
+        full_info,
+        transform=plt.gcf().transFigure,
+        fontsize=20,
+        verticalalignment="center",
+        bbox=props,
+    )
+
+    # Set the title for the plot
+    fig.suptitle(title, fontsize=30)
+    plt.show()
