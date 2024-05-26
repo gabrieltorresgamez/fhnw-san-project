@@ -15,10 +15,9 @@ help:
 
 ## Install Python Dependencies
 reqs-pip:
-	pip3 install -r requirements.txt --force-reinstall
-
+	pip3 install -r requirements.txt -U
 reqs-pip-cuda:
-	pip3 install -r requirements-cuda.txt --force-reinstall
+	pip3 install -r requirements-cuda.txt -U
 
 ## Download Offshore Leaks Dataset
 dl-data:
