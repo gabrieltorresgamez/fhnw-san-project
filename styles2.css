@@ -1,0 +1,15 @@
+<style>
+
+/* Somehow i need this so the selectors underneath arent ignored */
+.header-section-number::before {}
+
+.header-section-number {
+  color: #808080;
+}
+
+.header-section-number::after {
+  content: ".";
+}
+
+</style>
+
